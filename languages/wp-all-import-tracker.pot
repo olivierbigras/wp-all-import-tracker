@@ -1,0 +1,415 @@
+# WP All Import Tracker
+# Copyright (C) 2025 Olivier Bigras
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: WP All Import Tracker 1.0.0\n"
+"Report-Msgid-Bugs-To: https://olivierbigras.com\n"
+"POT-Creation-Date: 2025-01-01 00:00:00+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2025-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"X-Generator: WordPress\n"
+
+#: includes/class-admin.php:50
+msgid "Updated"
+msgstr ""
+
+#: includes/class-admin.php:67
+msgid "Skipped"
+msgstr ""
+
+#: includes/class-admin.php:150
+msgid "Settings"
+msgstr ""
+
+#: includes/class-settings.php:32
+msgid "WP All Import Tracker Settings"
+msgstr ""
+
+#: includes/class-settings.php:33
+msgid "Import Tracker"
+msgstr ""
+
+#: includes/class-settings.php:70
+msgid "General Settings"
+msgstr ""
+
+#: includes/class-settings.php:77
+msgid "Import ID"
+msgstr ""
+
+#: includes/class-settings.php:84
+msgid "Enable Auto Refresh"
+msgstr ""
+
+#: includes/class-settings.php:98
+msgid "Email Alerts"
+msgstr ""
+
+#: includes/class-settings.php:106
+msgid "Settings saved."
+msgstr ""
+
+#: includes/class-settings.php:131
+msgid "Save Settings"
+msgstr ""
+
+#: includes/class-settings.php:138
+msgid "About This Plugin"
+msgstr ""
+
+#: includes/class-settings.php:139
+msgid "WP All Import Tracker helps you monitor which WooCommerce products were updated or skipped during WP All Import runs."
+msgstr ""
+
+#: includes/class-settings.php:141
+msgid "Features:"
+msgstr ""
+
+#: includes/class-settings.php:143
+msgid "Import column in product list"
+msgstr ""
+
+#: includes/class-settings.php:144
+msgid "Filter products by import status"
+msgstr ""
+
+#: includes/class-settings.php:145
+msgid "Precise timestamps for updated products"
+msgstr ""
+
+#: includes/class-settings.php:146
+msgid "Automatic cache refresh after imports"
+msgstr ""
+
+#: includes/class-settings.php:151
+msgid "How to Find Import ID"
+msgstr ""
+
+#: includes/class-settings.php:152
+msgid "To find your WP All Import ID:"
+msgstr ""
+
+#: includes/class-settings.php:154
+msgid "Go to All Import > Manage Imports"
+msgstr ""
+
+#: includes/class-settings.php:155
+msgid "Look at the URL when editing an import"
+msgstr ""
+
+#: includes/class-settings.php:156
+msgid "The ID is the number in \"id=\" parameter"
+msgstr ""
+
+#: includes/class-settings.php:158
+msgid "Example: ...&id=11 means Import ID is 11"
+msgstr ""
+
+#: includes/class-settings.php:210
+msgid "Configure the basic settings for WP All Import Tracker."
+msgstr ""
+
+#: includes/class-settings.php:217
+msgid "The WP All Import ID to track. You can find this in your import URL, or click \"Detect Available Imports\" to see all imports."
+msgstr ""
+
+#: includes/class-settings.php:210
+msgid "Detect Available Imports"
+msgstr ""
+
+#: includes/class-settings.php:216
+msgid "Available Imports:"
+msgstr ""
+
+#: includes/class-settings.php:221
+msgid "ID"
+msgstr ""
+
+#: includes/class-settings.php:221
+msgid "Import Name"
+msgstr ""
+
+#: includes/class-settings.php:221
+msgid "Action"
+msgstr ""
+
+#: includes/class-settings.php:231
+msgid "Select"
+msgstr ""
+
+#: includes/class-settings.php:238
+msgid "No imports found. Make sure you have created at least one import in WP All Import."
+msgstr ""
+
+#: includes/class-settings.php:246
+msgid "Hide Imports"
+msgstr ""
+
+#: includes/class-settings.php:232
+msgid "Automatically refresh cache when imports start/finish"
+msgstr ""
+
+#: includes/class-settings.php:233
+msgid "Recommended to keep enabled for automatic updates."
+msgstr ""
+
+#: includes/class-settings.php:321
+msgid "Import ID must be a positive number."
+msgstr ""
+
+#: includes/class-settings.php:327
+msgid "WP All Import tables not found. Please make sure WP All Import is installed and activated."
+msgstr ""
+
+#: includes/class-settings.php:340
+msgid "Import ID %d not found in WP All Import. Please check the ID and try again."
+msgstr ""
+
+#: includes/class-settings.php:349
+msgid "Unknown"
+msgstr ""
+
+#: includes/class-settings.php:352
+msgid "Import ID updated successfully! Now tracking: \"%s\" (ID: %d, Products: %s)"
+msgstr ""
+
+#: includes/class-settings.php:127
+msgid "Currently Tracking"
+msgstr ""
+
+#: includes/class-settings.php:140
+msgid "Import Name:"
+msgstr ""
+
+#: includes/class-settings.php:141
+msgid "Import ID:"
+msgstr ""
+
+#: includes/class-settings.php:142
+msgid "Product Count:"
+msgstr ""
+
+#: includes/class-settings.php:150
+msgid "Last Import:"
+msgstr ""
+
+#: includes/class-settings.php:153
+msgid "Warning:"
+msgstr ""
+
+#: includes/class-settings.php:153
+msgid "Import ID %d not found!"
+msgstr ""
+
+#: includes/class-settings.php:154
+msgid "Please update the Import ID below."
+msgstr ""
+
+#: includes/class-settings.php:157
+msgid "WP All Import not detected!"
+msgstr ""
+
+#: includes/class-settings.php:328
+msgid "Configure email alerts for import failures and issues. The system will monitor your imports and send alerts when problems are detected."
+msgstr ""
+
+#: includes/class-settings.php:335
+msgid "Enable email alerts for import failures"
+msgstr ""
+
+#: includes/class-settings.php:336
+msgid "When enabled, the system will monitor imports and send email alerts when issues are detected."
+msgstr ""
+
+#: includes/class-settings.php:343
+msgid "Alert Email Address"
+msgstr ""
+
+#: includes/class-settings.php:346
+msgid "Send Test Email"
+msgstr ""
+
+#: includes/class-settings.php:347
+msgid "Email address to receive import failure notifications. Leave empty to use the admin email."
+msgstr ""
+
+#: includes/class-settings.php:354
+msgid "Sending..."
+msgstr ""
+
+#: includes/class-settings.php:366
+msgid "Error sending test email. Please try again."
+msgstr ""
+
+#: includes/class-settings.php:377
+msgid "Stale Activity Threshold (minutes)"
+msgstr ""
+
+#: includes/class-settings.php:379
+msgid "Minutes of inactivity before considering an import as stale. Default: 150 minutes."
+msgstr ""
+
+#: includes/class-settings.php:385
+msgid "Max Execution Time (minutes)"
+msgstr ""
+
+#: includes/class-settings.php:387
+msgid "Maximum execution time in minutes before considering an import as overrunning. Default: 180 minutes."
+msgstr ""
+
+#: includes/class-settings.php:439
+msgid "Security check failed."
+msgstr ""
+
+#: includes/class-settings.php:444
+msgid "Insufficient permissions."
+msgstr ""
+
+#: includes/class-settings.php:450
+msgid "Please enter a valid email address."
+msgstr ""
+
+#: includes/class-settings.php:466
+msgid "Test email sent successfully to %s!"
+msgstr ""
+
+#: includes/class-settings.php:468
+msgid "Failed to send test email. Please check your email configuration."
+msgstr ""
+
+#: includes/class-settings.php:178
+msgid "Email Alerts Status"
+msgstr ""
+
+#: includes/class-settings.php:184
+msgid "Status:"
+msgstr ""
+
+#: includes/class-settings.php:184
+msgid "Enabled"
+msgstr ""
+
+#: includes/class-settings.php:186
+msgid "Alert Email:"
+msgstr ""
+
+#: includes/class-settings.php:192
+msgid "Import Status:"
+msgstr ""
+
+#: includes/class-settings.php:198
+msgid "Next Check:"
+msgstr ""
+
+#: includes/class-settings.php:201
+msgid "Disabled"
+msgstr ""
+
+#: includes/class-settings.php:202
+msgid "Enable email alerts below to monitor import failures."
+msgstr ""
+
+#: includes/class-email-alerts.php:105
+msgid "Import \"%s\" (ID: %d) is executing but last activity was %.1f minutes ago."
+msgstr ""
+
+#: includes/class-email-alerts.php:113
+msgid "Import \"%s\" (ID: %d) has been executing for over %.1f minutes (possible overrun)."
+msgstr ""
+
+#: includes/class-email-alerts.php:122
+msgid "Import \"%s\" (ID: %d) was triggered but has not started executing for over %.1f minutes."
+msgstr ""
+
+#: includes/class-email-alerts.php:148
+msgid "[%s] WP All Import Alert: Import Issues Detected"
+msgstr ""
+
+#: includes/class-email-alerts.php:152
+msgid "Hello,\n\nWP All Import Tracker has detected the following issues with your imports on %s:\n\n"
+msgstr ""
+
+#: includes/class-email-alerts.php:159
+msgid "\nPlease check your WP All Import dashboard at: %s/wp-admin/admin.php?page=pmxi-admin-manage\n\n"
+msgstr ""
+
+#: includes/class-email-alerts.php:164
+msgid "You can configure these alerts in: %s/wp-admin/options-general.php?page=wpait-settings\n\n"
+msgstr ""
+
+#: includes/class-email-alerts.php:168
+msgid "Best regards,\nWP All Import Tracker"
+msgstr ""
+
+#: includes/class-email-alerts.php:189
+msgid "This is a test email from WP All Import Tracker."
+msgstr ""
+
+#: includes/class-email-alerts.php:190
+msgid "If you receive this email, the alert system is working correctly."
+msgstr ""
+
+#: includes/class-email-alerts.php:201
+msgid "WP All Import not detected"
+msgstr ""
+
+#: includes/class-email-alerts.php:207
+msgid "No imports configured"
+msgstr ""
+
+#: includes/class-email-alerts.php:224
+msgid "%d total imports: %d executing, %d triggered, %d idle"
+msgstr ""
+
+#: includes/class-email-alerts.php:160
+msgid "Quick Actions - Click to cancel stuck imports:"
+msgstr ""
+
+#: includes/class-email-alerts.php:163
+msgid "• Cancel Import \"%s\" (ID: %d): %s"
+msgstr ""
+
+#: includes/class-email-alerts.php:287
+msgid "Security check failed. Invalid or expired link."
+msgstr ""
+
+#: includes/class-email-alerts.php:297
+msgid "Import not found."
+msgstr ""
+
+#: includes/class-email-alerts.php:308
+msgid "Import \"%s\" (ID: %d) has been successfully cancelled.<br><br>The import will be reset and can be restarted from the WP All Import dashboard."
+msgstr ""
+
+#: includes/class-email-alerts.php:313
+msgid "Import Cancelled Successfully"
+msgstr ""
+
+#: includes/class-email-alerts.php:316
+msgid "Failed to cancel import. Please try again or cancel manually from WP All Import dashboard."
+msgstr ""
+
+#: includes/class-tracker.php:40
+msgid "Import"
+msgstr ""
+
+#: includes/class-tracker.php:56
+msgid "Never imported"
+msgstr ""
+
+#: includes/class-tracker.php:140
+msgid "Updated"
+msgstr ""
+
+#: includes/class-tracker.php:146
+msgid "Skipped"
+msgstr ""
+
+#: wp-all-import-tracker.php:120
+msgid "<strong>WP All Import Tracker</strong> requires <strong>WooCommerce</strong> and <strong>WP All Import</strong> to be installed and activated. Please install and activate these plugins first."
+msgstr "" 
