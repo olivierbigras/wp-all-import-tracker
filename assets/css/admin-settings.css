@@ -1,108 +1,49 @@
-.oliit-settings-wrapper {
-	display: flex;
-	gap: 20px;
-	margin-top: 20px;
+.oliit-import-fieldset {
+	border: 0;
+	margin: 0;
+	padding: 0;
 }
 
-.oliit-settings-main {
-	flex: 2;
+.oliit-import-choice {
+	display: block;
+	margin: 0 0 8px;
 }
 
-.oliit-settings-sidebar {
-	flex: 1;
-}
-
-.oliit-settings-box {
-	background: #fff;
-	border: 1px solid #ccd0d4;
-	border-radius: 4px;
-	padding: 15px;
-	margin-bottom: 20px;
-}
-
-.oliit-settings-box h3 {
-	margin-top: 0;
-	color: #1d2327;
-}
-
-.oliit-settings-box h4 {
-	color: #1d2327;
-	margin-bottom: 10px;
-}
-
-.oliit-settings-box ul,
-.oliit-settings-box ol {
-	margin-left: 20px;
-}
-
-.oliit-import-card {
-	border-left: 3px solid #00a32a;
-	padding-left: 10px;
-	margin-bottom: 15px;
-}
-
-.oliit-warning {
-	color: #d63638;
-}
-
-.oliit-success {
-	color: #00a32a;
-}
-
-.oliit-import-id-row {
-	margin-bottom: 10px;
-	display: flex;
-	align-items: center;
-}
-
-.oliit-import-id-input,
-.oliit-remove-import-id {
-	margin-right: 10px;
-}
-
-.oliit-add-import-id {
-	margin-top: 10px;
-}
-
-.oliit-detect-imports,
-.oliit-test-email {
-	margin-left: 10px;
-}
-
-.oliit-available-imports {
-	margin-top: 10px;
+.oliit-import-choice.is-filtered-out {
 	display: none;
 }
 
-.oliit-available-imports.is-visible {
-	display: block;
-}
-
-.oliit-available-imports-table {
-	max-width: 600px;
+.oliit-advanced {
+	margin-top: 12px;
 }
 
 .oliit-ajax-result {
-	margin-top: 10px;
+	margin: 8px 0 16px;
 }
 
-.oliit-debug-status {
-	background: #f0f0f1;
-	padding: 10px;
-	margin-top: 10px;
-	border-left: 4px solid #0073aa;
+.oliit-field-error {
+	color: #d63638;
+	margin: 6px 0 0;
 }
 
-.oliit-reset-result {
-	margin-left: 10px;
+.oliit-tools {
+	max-width: 720px;
+	margin-top: 16px;
 }
 
-.oliit-tracked {
-	color: #46b450;
+.oliit-diagnose-table {
+	margin-top: 12px;
+	max-width: 800px;
 }
 
-@media screen and (max-width: 782px) {
-	.oliit-settings-wrapper {
-		flex-direction: column;
-	}
+.oliit-status-ok {
+	color: #1e8e3e;
+}
+
+.oliit-status-bad {
+	color: #d63638;
+}
+
+.oliit-test-email {
+	margin-left: 8px;
 }

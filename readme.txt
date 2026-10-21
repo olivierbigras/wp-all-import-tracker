@@ -17,7 +17,7 @@ Track and display WP All Import status for WooCommerce products. Shows which pro
 ### Key Features
 
 * **Smart Import Monitoring**: Automatically detects when imports get stuck, fail, or take too long
-* **Optional Email Alerts**: Email notifications when issues are detected (disabled until you enable them, or until the first issue is confirmed deliverable)
+* **Optional Email Alerts**: Email notifications when issues are detected (off until you enable them)
 * **Import Status Column**: Adds an "Import" column to your WooCommerce product list showing the last import status
 * **Precise Timestamps**: Shows exact modification times for updated products and import start time for skipped products
 * **Smart Filtering**: Filter your product list to show only updated or skipped products
@@ -150,7 +150,11 @@ This plugin is specifically designed for WP All Import and may not work with oth
 
 = 1.2.0 =
 * Renamed the plugin to Oli Import Tracker for WP All Import
+* Slug and text domain are now oli-import-tracker (main file oli-import-tracker.php)
 * Migrated options, transients, and cron hooks from the wpait_ prefix to oliit_
+* Settings screen: Tracked imports + Email alerts, with a separate Tools tab
+* Import checkboxes instead of a default import ID of 1; scheduled jobs are preselected when detected
+* Email alerts stay off until the site owner enables them
 * Moved all inline JavaScript and CSS into enqueued asset files
 * Aligned Stable tag, Tested up to, and plugin version
 * Hardened admin AJAX, cancel-import links, and output escaping
@@ -183,7 +187,7 @@ This plugin does not call third-party HTTP APIs (no analytics, fonts, maps, capt
 
 = Site email (optional) =
 
-When email alerts are enabled, notifications are sent with WordPress `wp_mail()`. Delivery uses the site's existing mailer (the host, or an SMTP plugin if you installed one). Alerts stay disabled until you turn them on, or until the plugin confirms that a first-issue notification can be delivered.
+When email alerts are enabled, notifications are sent with WordPress `wp_mail()`. Delivery uses the site's existing mailer (the host, or an SMTP plugin if you installed one). Alerts stay disabled until you turn them on.
 
 Data sent in an alert: site name, site URL, import names and IDs, a short issue description, and optional Action Scheduler job details already stored on the site (hook, status, last attempt). The recipient is the address you configure, or the WordPress admin email.
 

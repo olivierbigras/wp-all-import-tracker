@@ -33,6 +33,7 @@ function oliit_uninstall() {
         'oliit_last_longterm_alert',
         'oliit_dismissed_notifications',
         'oliit_options_migrated',
+        'oliit_ux_defaults_migrated',
         'wpait_import_id',
         'wpait_import_ids',
         'wpait_enable_auto_refresh',

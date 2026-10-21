@@ -22,7 +22,7 @@ A WordPress plugin that helps you monitor which WooCommerce products were update
 ## Installation
 
 1. Download the plugin files
-2. Upload the `wp-all-import-tracker` folder to your `/wp-content/plugins/` directory
+2. Upload the `oli-import-tracker` folder to your `/wp-content/plugins/` directory
 3. Activate the plugin through the 'Plugins' menu in WordPress
 4. Go to Settings > Import Tracker to configure your import IDs
 

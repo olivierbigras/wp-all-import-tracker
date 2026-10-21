@@ -143,7 +143,7 @@ class OLIIT_Email_Alerts {
 
         foreach ($imports as $import) {
             $import_id                   = $import->id;
-            $import_name                 = !empty($import->name) ? $import->name : sprintf(/* translators: %d: import ID */ __('Import #%d', 'wp-all-import-tracker'), $import_id);
+            $import_name                 = !empty($import->name) ? $import->name : sprintf(/* translators: %d: import ID */ __('Import #%d', 'oli-import-tracker'), $import_id);
             $last_activity               = strtotime($import->last_activity);
             $minutes_since_last_activity = max(0, ($now - $last_activity) / 60);
             $start_time                  = get_option('oliit_import_start_time_' . $import_id, null);
@@ -152,7 +152,7 @@ class OLIIT_Email_Alerts {
             if ($import->executing && $minutes_since_last_activity > $stale_threshold_minutes) {
                 $issues[] = sprintf(
                     /* translators: 1: import name, 2: import ID, 3: minutes since last activity */
-                    __('Import "%1$s" (ID: %2$d) is executing but last activity was %3$.1f minutes ago.', 'wp-all-import-tracker'),
+                    __('Import "%1$s" (ID: %2$d) is executing but last activity was %3$.1f minutes ago.', 'oli-import-tracker'),
                     $import_name,
                     $import_id,
                     $minutes_since_last_activity
@@ -162,7 +162,7 @@ class OLIIT_Email_Alerts {
             if ($import->executing && $start_time && $minutes_since_start > $max_execution_minutes) {
                 $issues[] = sprintf(
                     /* translators: 1: import name, 2: import ID, 3: minutes since start */
-                    __('Import "%1$s" (ID: %2$d) has been executing for over %3$.1f minutes (possible overrun).', 'wp-all-import-tracker'),
+                    __('Import "%1$s" (ID: %2$d) has been executing for over %3$.1f minutes (possible overrun).', 'oli-import-tracker'),
                     $import_name,
                     $import_id,
                     $minutes_since_start
@@ -172,7 +172,7 @@ class OLIIT_Email_Alerts {
             if ($import->triggered && !$import->executing && $minutes_since_last_activity > $stale_threshold_minutes) {
                 $issues[] = sprintf(
                     /* translators: 1: import name, 2: import ID, 3: minutes since last activity */
-                    __('Import "%1$s" (ID: %2$d) was triggered but has not started executing for over %3$.1f minutes.', 'wp-all-import-tracker'),
+                    __('Import "%1$s" (ID: %2$d) was triggered but has not started executing for over %3$.1f minutes.', 'oli-import-tracker'),
                     $import_name,
                     $import_id,
                     $minutes_since_last_activity
@@ -182,7 +182,7 @@ class OLIIT_Email_Alerts {
             if ($import->processing && !$import->executing && $minutes_since_last_activity > $stale_threshold_minutes) {
                 $issues[] = sprintf(
                     /* translators: 1: import name, 2: import ID, 3: minutes since last activity */
-                    __('Import "%1$s" (ID: %2$d) is stuck in PROCESSING state with no activity for %3$.1f minutes.', 'wp-all-import-tracker'),
+                    __('Import "%1$s" (ID: %2$d) is stuck in PROCESSING state with no activity for %3$.1f minutes.', 'oli-import-tracker'),
                     $import_name,
                     $import_id,
                     $minutes_since_last_activity
@@ -193,7 +193,7 @@ class OLIIT_Email_Alerts {
             if ($import->failed && $hours_since_last_activity > 1) {
                 $issues[] = sprintf(
                     /* translators: 1: import name, 2: import ID, 3: hours since last activity */
-                    __('Import "%1$s" (ID: %2$d) has been in FAILED state for %3$.1f hours.', 'wp-all-import-tracker'),
+                    __('Import "%1$s" (ID: %2$d) has been in FAILED state for %3$.1f hours.', 'oli-import-tracker'),
                     $import_name,
                     $import_id,
                     $hours_since_last_activity
@@ -203,7 +203,7 @@ class OLIIT_Email_Alerts {
             if ($import->canceled && $hours_since_last_activity > 1) {
                 $issues[] = sprintf(
                     /* translators: 1: import name, 2: import ID, 3: hours since last activity */
-                    __('Import "%1$s" (ID: %2$d) has been CANCELED for %3$.1f hours.', 'wp-all-import-tracker'),
+                    __('Import "%1$s" (ID: %2$d) has been CANCELED for %3$.1f hours.', 'oli-import-tracker'),
                     $import_name,
                     $import_id,
                     $hours_since_last_activity
@@ -259,14 +259,14 @@ class OLIIT_Email_Alerts {
         }
 
         if ($last_job_with_logs) {
-            $extra_info  = "\n\n" . __('Last Import Job Info:', 'wp-all-import-tracker') . "\n";
-            $extra_info .= sprintf(/* translators: %s: action ID */ __('Action ID: %s', 'wp-all-import-tracker'), $last_job_with_logs->action_id) . "\n";
-            $extra_info .= sprintf(/* translators: %s: hook name */ __('Hook: %s', 'wp-all-import-tracker'), $last_job_with_logs->hook) . "\n";
-            $extra_info .= sprintf(/* translators: %s: status */ __('Status: %s', 'wp-all-import-tracker'), $last_job_with_logs->status) . "\n";
-            $extra_info .= sprintf(/* translators: %s: last attempt timestamp */ __('Last Attempt: %s', 'wp-all-import-tracker'), $last_job_with_logs->last_attempt_gmt) . "\n";
+            $extra_info  = "\n\n" . __('Last Import Job Info:', 'oli-import-tracker') . "\n";
+            $extra_info .= sprintf(/* translators: %s: action ID */ __('Action ID: %s', 'oli-import-tracker'), $last_job_with_logs->action_id) . "\n";
+            $extra_info .= sprintf(/* translators: %s: hook name */ __('Hook: %s', 'oli-import-tracker'), $last_job_with_logs->hook) . "\n";
+            $extra_info .= sprintf(/* translators: %s: status */ __('Status: %s', 'oli-import-tracker'), $last_job_with_logs->status) . "\n";
+            $extra_info .= sprintf(/* translators: %s: last attempt timestamp */ __('Last Attempt: %s', 'oli-import-tracker'), $last_job_with_logs->last_attempt_gmt) . "\n";
 
             if (!empty($last_job_with_logs->message)) {
-                $extra_info .= sprintf(/* translators: %s: log message */ __('Last Log: %s', 'wp-all-import-tracker'), $last_job_with_logs->message) . "\n";
+                $extra_info .= sprintf(/* translators: %s: log message */ __('Last Log: %s', 'oli-import-tracker'), $last_job_with_logs->message) . "\n";
             }
         }
 
@@ -277,10 +277,9 @@ class OLIIT_Email_Alerts {
      * Send alert email.
      *
      * @param string[] $issues     Issue messages.
-     * @param bool     $first_time Whether this is the first auto-activation email.
      * @return bool
      */
-    private function send_alert_email($issues, $first_time = false) {
+    private function send_alert_email($issues) {
         $alert_email = get_option('oliit_alert_email', '');
         if (empty($alert_email)) {
             $alert_email = get_option('admin_email');
@@ -294,29 +293,16 @@ class OLIIT_Email_Alerts {
         $site_name = get_bloginfo('name');
         $site_url  = get_site_url();
 
-        if ($first_time) {
-            $subject = sprintf(
-                /* translators: %s: site name */
-                __('[%s] Oli Import Tracker Auto-Activated: Issues Detected', 'wp-all-import-tracker'),
-                $site_name
-            );
-            $message = sprintf(
-                /* translators: %s: site name */
-                __("Hello,\n\nOli Import Tracker for WP All Import has automatically activated email alerts because we detected issues with your imports on %s.\n\nThis is the first time issues have been detected, so we've enabled monitoring to help prevent data sync problems.\n\nCurrent Issues:\n\n", 'wp-all-import-tracker'),
-                $site_name
-            );
-        } else {
-            $subject = sprintf(
-                /* translators: %s: site name */
-                __('[%s] Import Alert: Import Issues Detected', 'wp-all-import-tracker'),
-                $site_name
-            );
-            $message = sprintf(
-                /* translators: %s: site name */
-                __("Hello,\n\nOli Import Tracker for WP All Import has detected the following issues with your imports on %s:\n\n", 'wp-all-import-tracker'),
-                $site_name
-            );
-        }
+        $subject = sprintf(
+            /* translators: %s: site name */
+            __('[%s] Import Alert: Import Issues Detected', 'oli-import-tracker'),
+            $site_name
+        );
+        $message = sprintf(
+            /* translators: %s: site name */
+            __("Hello,\n\nOli Import Tracker for WP All Import has detected the following issues with your imports on %s:\n\n", 'oli-import-tracker'),
+            $site_name
+        );
 
         foreach ($issues as $issue) {
             $message .= '• ' . $issue . "\n";
@@ -326,11 +312,11 @@ class OLIIT_Email_Alerts {
 
         $cancel_links = $this->get_cancel_links_for_stuck_imports();
         if (!empty($cancel_links)) {
-            $message .= "\n" . __('Quick Actions - Click to cancel stuck imports:', 'wp-all-import-tracker') . "\n\n";
+            $message .= "\n" . __('Quick Actions - Click to cancel stuck imports:', 'oli-import-tracker') . "\n\n";
             foreach ($cancel_links as $import_id => $cancel_info) {
                 $message .= sprintf(
                     /* translators: 1: import name, 2: import ID, 3: cancel URL */
-                    __('• Cancel Import "%1$s" (ID: %2$d): %3$s', 'wp-all-import-tracker'),
+                    __('• Cancel Import "%1$s" (ID: %2$d): %3$s', 'oli-import-tracker'),
                     $cancel_info['name'],
                     $import_id,
                     $cancel_info['url']
@@ -340,17 +326,17 @@ class OLIIT_Email_Alerts {
 
         $message .= sprintf(
             /* translators: %s: site URL */
-            __("\nPlease check your WP All Import dashboard at: %s/wp-admin/admin.php?page=pmxi-admin-manage\n\n", 'wp-all-import-tracker'),
+            __("\nPlease check your WP All Import dashboard at: %s/wp-admin/admin.php?page=pmxi-admin-manage\n\n", 'oli-import-tracker'),
             $site_url
         );
 
         $message .= sprintf(
             /* translators: %s: site URL */
-            __("You can configure these alerts in: %s/wp-admin/options-general.php?page=oliit-settings\n\n", 'wp-all-import-tracker'),
+            __("You can configure these alerts in: %s/wp-admin/options-general.php?page=oliit-settings\n\n", 'oli-import-tracker'),
             $site_url
         );
 
-        $message .= __("Best regards,\nOli Import Tracker for WP All Import", 'wp-all-import-tracker');
+        $message .= __("Best regards,\nOli Import Tracker for WP All Import", 'oli-import-tracker');
 
         $headers = array(
             'Content-Type: text/plain; charset=UTF-8',
@@ -372,7 +358,7 @@ class OLIIT_Email_Alerts {
     }
 
     /**
-     * Handle detected issues with smart auto-activation.
+     * Store issues and email only when the user enabled alerts.
      *
      * @param string[] $issues Issue messages.
      * @return void
@@ -381,27 +367,7 @@ class OLIIT_Email_Alerts {
         update_option('oliit_current_issues', $issues);
         update_option('oliit_issues_detected_time', current_time('timestamp'));
 
-        $alerts_enabled        = get_option('oliit_enable_email_alerts', 0);
-        $first_issues_detected = !get_option('oliit_first_issues_handled', 0);
-
-        if (!$alerts_enabled && $first_issues_detected) {
-            oliit_log('First import issues detected - attempting smart auto-activation');
-
-            $test_email_sent = $this->send_alert_email($issues, true);
-
-            if ($test_email_sent) {
-                update_option('oliit_enable_email_alerts', 1);
-                update_option('oliit_auto_enabled_reason', 'first_issue_detected');
-                update_option('oliit_auto_enabled_time', current_time('timestamp'));
-                oliit_log('Smart auto-activation successful - email alerts enabled');
-                add_action('admin_notices', array($this, 'notice_auto_activated'));
-            } else {
-                oliit_log('Smart auto-activation failed - email delivery issue, keeping alerts disabled');
-                add_action('admin_notices', array($this, 'notice_email_config_needed'));
-            }
-
-            update_option('oliit_first_issues_handled', 1);
-        } elseif ($alerts_enabled) {
+        if (get_option('oliit_enable_email_alerts', 0)) {
             $this->send_alert_email($issues);
         }
 
@@ -411,47 +377,14 @@ class OLIIT_Email_Alerts {
     }
 
     /**
-     * Notice after successful auto-activation.
-     *
-     * @return void
-     */
-    public function notice_auto_activated() {
-        echo '<div class="notice notice-success is-dismissible">';
-        echo '<h3>' . esc_html__('Oli Import Tracker Auto-Activated!', 'wp-all-import-tracker') . '</h3>';
-        echo '<p>' . esc_html__('We detected import issues and automatically enabled email alerts. You will now be notified when imports get stuck or fail.', 'wp-all-import-tracker') . '</p>';
-        echo '<p><strong>' . esc_html(sprintf(/* translators: %s: email address */ __('Alerts sent to: %s', 'wp-all-import-tracker'), get_option('admin_email'))) . '</strong></p>';
-        echo '</div>';
-    }
-
-    /**
-     * Notice when email delivery failed.
-     *
-     * @return void
-     */
-    public function notice_email_config_needed() {
-        echo '<div class="notice notice-warning is-dismissible">';
-        echo '<h3>' . esc_html__('Email Configuration Needed', 'wp-all-import-tracker') . '</h3>';
-        echo '<p>' . esc_html__('We detected import issues but could not send email alerts. You will see admin notices instead.', 'wp-all-import-tracker') . '</p>';
-        echo '<p>' . wp_kses_post(
-            sprintf(
-                /* translators: 1: opening anchor, 2: closing anchor */
-                __('To enable email alerts, %1$scheck your email configuration%2$s first.', 'wp-all-import-tracker'),
-                '<a href="' . esc_url(admin_url('options-general.php?page=oliit-settings')) . '">',
-                '</a>'
-            )
-        ) . '</p>';
-        echo '</div>';
-    }
-
-    /**
      * Test email functionality.
      *
      * @return bool
      */
     public function send_test_email() {
         $test_issues = array(
-            __('This is a test email from Oli Import Tracker for WP All Import.', 'wp-all-import-tracker'),
-            __('If you receive this email, the alert system is working correctly.', 'wp-all-import-tracker'),
+            __('This is a test email from Oli Import Tracker for WP All Import.', 'oli-import-tracker'),
+            __('If you receive this email, the alert system is working correctly.', 'oli-import-tracker'),
         );
 
         return $this->send_alert_email($test_issues);
@@ -466,12 +399,12 @@ class OLIIT_Email_Alerts {
         global $wpdb;
 
         if (!oliit_table_exists($wpdb->prefix . 'pmxi_imports')) {
-            return __('WP All Import not detected', 'wp-all-import-tracker');
+            return __('WP All Import not detected', 'oli-import-tracker');
         }
 
         $configured_import_ids = oliit()->get_import_ids();
         if (empty($configured_import_ids)) {
-            return __('No imports configured', 'wp-all-import-tracker');
+            return __('No imports configured', 'oli-import-tracker');
         }
 
         $placeholders = oliit_ids_placeholders($configured_import_ids);
@@ -483,7 +416,7 @@ class OLIIT_Email_Alerts {
         // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         if (empty($imports)) {
-            return __('No configured imports found', 'wp-all-import-tracker');
+            return __('No configured imports found', 'oli-import-tracker');
         }
 
         $executing_count = 0;
@@ -502,7 +435,7 @@ class OLIIT_Email_Alerts {
 
         return sprintf(
             /* translators: 1: total imports, 2: executing count, 3: triggered count, 4: idle count */
-            __('%1$d configured imports: %2$d executing, %3$d triggered, %4$d idle', 'wp-all-import-tracker'),
+            __('%1$d configured imports: %2$d executing, %3$d triggered, %4$d idle', 'oli-import-tracker'),
             count($imports),
             $executing_count,
             $triggered_count,
@@ -542,7 +475,7 @@ class OLIIT_Email_Alerts {
 
         foreach ($imports as $import) {
             $import_id                   = $import->id;
-            $import_name                 = !empty($import->name) ? $import->name : sprintf(/* translators: %d: import ID */ __('Import #%d', 'wp-all-import-tracker'), $import_id);
+            $import_name                 = !empty($import->name) ? $import->name : sprintf(/* translators: %d: import ID */ __('Import #%d', 'oli-import-tracker'), $import_id);
             $last_activity               = strtotime($import->last_activity);
             $minutes_since_last_activity = max(0, ($now - $last_activity) / 60);
             $start_time                  = get_option('oliit_import_start_time_' . $import_id, null);
@@ -599,14 +532,14 @@ class OLIIT_Email_Alerts {
         }
 
         if (!is_user_logged_in() || !current_user_can('manage_options')) {
-            wp_die(esc_html__('You do not have permission to cancel imports.', 'wp-all-import-tracker'));
+            wp_die(esc_html__('You do not have permission to cancel imports.', 'oli-import-tracker'));
         }
 
         $import_id = isset($_GET['import_id']) ? absint($_GET['import_id']) : 0;
         $nonce     = isset($_GET['nonce']) ? sanitize_text_field(wp_unslash($_GET['nonce'])) : '';
 
         if (!wp_verify_nonce($nonce, 'oliit_cancel_import_' . $import_id)) {
-            wp_die(esc_html__('Security check failed. Invalid or expired link.', 'wp-all-import-tracker'));
+            wp_die(esc_html__('Security check failed. Invalid or expired link.', 'oli-import-tracker'));
         }
 
         global $wpdb;
@@ -616,30 +549,30 @@ class OLIIT_Email_Alerts {
         ));
 
         if (!$import) {
-            wp_die(esc_html__('Import not found.', 'wp-all-import-tracker'));
+            wp_die(esc_html__('Import not found.', 'oli-import-tracker'));
         }
 
         $result = $this->cancel_import($import_id);
 
         if ($result) {
-            $import_name = !empty($import->name) ? $import->name : sprintf(/* translators: %d: import ID */ __('Import #%d', 'wp-all-import-tracker'), $import_id);
+            $import_name = !empty($import->name) ? $import->name : sprintf(/* translators: %d: import ID */ __('Import #%d', 'oli-import-tracker'), $import_id);
             oliit_log("Import {$import_id} ({$import_name}) cancelled via email link");
 
             wp_die(
                 wp_kses_post(
                     sprintf(
                         /* translators: 1: import name, 2: import ID */
-                        __('Import "%1$s" (ID: %2$d) has been successfully cancelled.<br><br>The import will be reset and can be restarted from the WP All Import dashboard.', 'wp-all-import-tracker'),
+                        __('Import "%1$s" (ID: %2$d) has been successfully cancelled.<br><br>The import will be reset and can be restarted from the WP All Import dashboard.', 'oli-import-tracker'),
                         esc_html($import_name),
                         $import_id
                     )
                 ),
-                esc_html__('Import Cancelled Successfully', 'wp-all-import-tracker'),
+                esc_html__('Import Cancelled Successfully', 'oli-import-tracker'),
                 array('response' => 200)
             );
         }
 
-        wp_die(esc_html__('Failed to cancel import. Please try again or cancel manually from WP All Import dashboard.', 'wp-all-import-tracker'));
+        wp_die(esc_html__('Failed to cancel import. Please try again or cancel manually from WP All Import dashboard.', 'oli-import-tracker'));
     }
 
     /**
@@ -701,50 +634,26 @@ class OLIIT_Email_Alerts {
             return;
         }
 
-        $enable_url = add_query_arg(
-            array(
-                'oliit_action' => 'enable_alerts',
-                'nonce'        => wp_create_nonce('oliit_enable_alerts'),
-            )
-        );
-
         $dismiss_url = add_query_arg(
             array(
                 'oliit_action' => 'dismiss_setup',
                 'nonce'        => wp_create_nonce('oliit_dismiss_setup'),
             )
         );
+        $configure_url = admin_url('options-general.php?page=oliit-settings');
         ?>
         <div class="notice notice-info is-dismissible">
-            <h3><?php esc_html_e('Oli Import Tracker Active', 'wp-all-import-tracker'); ?></h3>
             <p>
-                <?php esc_html_e('Your WP All Import jobs are now being monitored. If any issues are detected, we will automatically enable email alerts and notify you.', 'wp-all-import-tracker'); ?>
+                <?php esc_html_e('Import tracking is active. Choose your imports and enable alerts if you want.', 'oli-import-tracker'); ?>
             </p>
             <p>
-                <strong><?php esc_html_e('Zero configuration required!', 'wp-all-import-tracker'); ?></strong>
-                <?php esc_html_e('The plugin works automatically and will enable alerts when needed.', 'wp-all-import-tracker'); ?>
-            </p>
-            <p>
-                <a href="<?php echo esc_url($enable_url); ?>" class="button button-secondary">
-                    <?php esc_html_e('Enable Alerts Now (Optional)', 'wp-all-import-tracker'); ?>
+                <a href="<?php echo esc_url($configure_url); ?>" class="button button-primary">
+                    <?php esc_html_e('Configure', 'oli-import-tracker'); ?>
                 </a>
-                <a href="<?php echo esc_url($dismiss_url); ?>" class="button button-primary">
-                    <?php esc_html_e('Got It, Thanks!', 'wp-all-import-tracker'); ?>
+                <a href="<?php echo esc_url($dismiss_url); ?>" class="button button-secondary">
+                    <?php esc_html_e('Later', 'oli-import-tracker'); ?>
                 </a>
             </p>
-            <p><small>
-                <?php
-                echo wp_kses_post(
-                    sprintf(
-                        /* translators: 1: admin email, 2: opening settings link, 3: closing settings link */
-                        __('Monitoring active • Alerts will be sent to: %1$s • %2$sChange settings%3$s', 'wp-all-import-tracker'),
-                        '<strong>' . esc_html(get_option('admin_email')) . '</strong>',
-                        '<a href="' . esc_url(admin_url('options-general.php?page=oliit-settings')) . '">',
-                        '</a>'
-                    )
-                );
-                ?>
-            </small></p>
         </div>
         <?php
     }
@@ -773,70 +682,31 @@ class OLIIT_Email_Alerts {
             return;
         }
 
-        $enable_alerts_url = add_query_arg(
-            array(
-                'oliit_action' => 'enable_alerts',
-                'nonce'        => wp_create_nonce('oliit_enable_alerts'),
-            )
-        );
-
         $dismiss_url = add_query_arg(
             array(
-                'oliit_action'       => 'dismiss_notification',
-                'notification_hash'  => $notification_hash,
-                'nonce'              => wp_create_nonce('oliit_dismiss_notification'),
+                'oliit_action'      => 'dismiss_notification',
+                'notification_hash' => $notification_hash,
+                'nonce'             => wp_create_nonce('oliit_dismiss_notification'),
             )
         );
-
-        $alerts_enabled = get_option('oliit_enable_email_alerts', 0);
         ?>
-        <div class="notice notice-warning" id="oliit-import-notice">
-            <div class="oliit-notice-layout">
-                <div class="oliit-notice-body">
-                    <h3><?php esc_html_e('WP All Import Issues Detected', 'wp-all-import-tracker'); ?></h3>
-                    <div class="oliit-notice-issues">
-                        <?php foreach ($issues as $issue) : ?>
-                            <p class="oliit-notice-issue">• <?php echo esc_html($issue); ?></p>
-                        <?php endforeach; ?>
-                    </div>
-
-                    <?php if (!$alerts_enabled) : ?>
-                        <p>
-                            <a href="<?php echo esc_url($enable_alerts_url); ?>" class="button button-primary">
-                                <?php esc_html_e('Enable Email Alerts for Future Issues', 'wp-all-import-tracker'); ?>
-                            </a>
-                            <a href="<?php echo esc_url(admin_url('admin.php?page=pmxi-admin-manage')); ?>" class="button">
-                                <?php esc_html_e('Fix in WP All Import', 'wp-all-import-tracker'); ?>
-                            </a>
-                        </p>
-                    <?php else : ?>
-                        <p>
-                            <a href="<?php echo esc_url(admin_url('admin.php?page=pmxi-admin-manage')); ?>" class="button button-primary">
-                                <?php esc_html_e('Fix in WP All Import', 'wp-all-import-tracker'); ?>
-                            </a>
-                            <span class="oliit-notice-ok"><?php esc_html_e('Email alerts are enabled', 'wp-all-import-tracker'); ?></span>
-                        </p>
-                    <?php endif; ?>
-
-                    <p><small>
-                        <?php
-                        echo esc_html(
-                            sprintf(
-                                /* translators: 1: date/time, 2: minutes until next check */
-                                __('Issues detected at: %1$s | Next check in ~%2$d minutes', 'wp-all-import-tracker'),
-                                date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $issues_time),
-                                max(0, 60 - (int) ((current_time('timestamp') - $issues_time) / 60))
-                            )
-                        );
-                        ?>
-                    </small></p>
-                </div>
-                <div class="oliit-notice-dismiss-wrap">
-                    <a href="<?php echo esc_url($dismiss_url); ?>" class="button button-small oliit-notice-dismiss" title="<?php esc_attr_e('Dismiss this notification', 'wp-all-import-tracker'); ?>">
-                        <?php esc_html_e('Dismiss', 'wp-all-import-tracker'); ?>
-                    </a>
-                </div>
+        <div class="notice notice-warning is-dismissible" id="oliit-import-notice">
+            <p>
+                <strong><?php esc_html_e('A tracked import needs attention.', 'oli-import-tracker'); ?></strong>
+            </p>
+            <div class="oliit-notice-issues">
+                <?php foreach ($issues as $issue) : ?>
+                    <p class="oliit-notice-issue"><?php echo esc_html($issue); ?></p>
+                <?php endforeach; ?>
             </div>
+            <p>
+                <a href="<?php echo esc_url(admin_url('admin.php?page=pmxi-admin-manage')); ?>" class="button button-primary">
+                    <?php esc_html_e('Open WP All Import → Manage Imports', 'oli-import-tracker'); ?>
+                </a>
+                <a href="<?php echo esc_url($dismiss_url); ?>" class="button button-secondary">
+                    <?php esc_html_e('Dismiss', 'oli-import-tracker'); ?>
+                </a>
+            </p>
         </div>
         <?php
     }
@@ -904,7 +774,7 @@ class OLIIT_Email_Alerts {
      * @return void
      */
     public function notice_alerts_enabled() {
-        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Email alerts enabled! A test email was sent to confirm delivery.', 'wp-all-import-tracker') . '</p></div>';
+        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Email alerts enabled! A test email was sent to confirm delivery.', 'oli-import-tracker') . '</p></div>';
     }
 
     /**
@@ -913,7 +783,7 @@ class OLIIT_Email_Alerts {
      * @return void
      */
     public function notice_alerts_enabled_mail_failed() {
-        echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html__('Email alerts enabled, but test email failed. Please check your email configuration.', 'wp-all-import-tracker') . '</p></div>';
+        echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html__('Email alerts enabled, but test email failed. Please check your email configuration.', 'oli-import-tracker') . '</p></div>';
     }
 
     /**
@@ -925,7 +795,7 @@ class OLIIT_Email_Alerts {
         echo '<div class="notice notice-info is-dismissible"><p>' . wp_kses_post(
             sprintf(
                 /* translators: 1: opening settings link, 2: closing settings link */
-                __('Setup dismissed. You can enable email alerts anytime in %1$sSettings%2$s.', 'wp-all-import-tracker'),
+                __('Setup dismissed. You can enable email alerts anytime in %1$sSettings%2$s.', 'oli-import-tracker'),
                 '<a href="' . esc_url(admin_url('options-general.php?page=oliit-settings')) . '">',
                 '</a>'
             )
@@ -938,7 +808,7 @@ class OLIIT_Email_Alerts {
      * @return void
      */
     public function notice_notification_dismissed() {
-        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Import notification dismissed. You can still check import status in WP All Import.', 'wp-all-import-tracker') . '</p></div>';
+        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Import notification dismissed. You can still check import status in WP All Import.', 'oli-import-tracker') . '</p></div>';
     }
 
     /**

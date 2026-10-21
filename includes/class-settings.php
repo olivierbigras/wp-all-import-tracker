@@ -38,6 +38,16 @@ class OLIIT_Settings {
     }
 
     /**
+     * Current settings tab.
+     *
+     * @return string
+     */
+    private function current_tab() {
+        $tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : 'settings';
+        return in_array($tab, array('settings', 'tools'), true) ? $tab : 'settings';
+    }
+
+    /**
      * Enqueue settings page assets.
      *
      * @param string $hook Current admin hook.
@@ -71,25 +81,31 @@ class OLIIT_Settings {
                 'adminEmail' => get_option('admin_email'),
                 'importIds'  => oliit()->get_import_ids(),
                 'nonces'     => array(
-                    'testEmail'           => wp_create_nonce('oliit_test_email'),
-                    'refreshCache'        => wp_create_nonce('oliit_refresh_cache'),
-                    'debugImport'         => wp_create_nonce('oliit_debug_import'),
-                    'resetNotifications'  => wp_create_nonce('oliit_reset_notifications'),
+                    'testEmail'          => wp_create_nonce('oliit_test_email'),
+                    'refreshCache'       => wp_create_nonce('oliit_refresh_cache'),
+                    'debugImport'        => wp_create_nonce('oliit_debug_import'),
+                    'resetNotifications' => wp_create_nonce('oliit_reset_notifications'),
                 ),
                 'i18n'       => array(
-                    'remove'          => __('Remove', 'wp-all-import-tracker'),
-                    'detectImports'   => __('Detect Available Imports', 'wp-all-import-tracker'),
-                    'hideImports'     => __('Hide Available Imports', 'wp-all-import-tracker'),
-                    'tracked'         => __('Tracked', 'wp-all-import-tracker'),
-                    'sending'         => __('Sending...', 'wp-all-import-tracker'),
-                    'testEmailError'  => __('Error sending test email. Please try again.', 'wp-all-import-tracker'),
-                    'refreshing'      => __('Refreshing...', 'wp-all-import-tracker'),
-                    'refreshError'    => __('Error refreshing cache. Please try again.', 'wp-all-import-tracker'),
-                    'checking'        => __('Checking...', 'wp-all-import-tracker'),
-                    'debugError'      => __('Error checking import data.', 'wp-all-import-tracker'),
-                    'resetting'       => __('Resetting...', 'wp-all-import-tracker'),
-                    'resetLabel'      => __('Reset All Dismissed Notifications', 'wp-all-import-tracker'),
-                    'resetError'      => __('Error occurred', 'wp-all-import-tracker'),
+                    'sending'        => __('Sending…', 'oli-import-tracker'),
+                    'testEmailError' => __('Error sending test email. Please try again.', 'oli-import-tracker'),
+                    'invalidEmail'   => __('Enter a valid email address.', 'oli-import-tracker'),
+                    'refreshing'     => __('Refreshing…', 'oli-import-tracker'),
+                    'refreshError'   => __('Error refreshing cache. Please try again.', 'oli-import-tracker'),
+                    'checking'       => __('Checking…', 'oli-import-tracker'),
+                    'debugError'     => __('Error checking import data.', 'oli-import-tracker'),
+                    'resetting'      => __('Resetting…', 'oli-import-tracker'),
+                    'resetLabel'     => __('Show dismissed notices again', 'oli-import-tracker'),
+                    'resetError'     => __('The request failed.', 'oli-import-tracker'),
+                    'neverRun'       => __('never run', 'oli-import-tracker'),
+                    'thresholdError' => __('Maximum run time must be greater than or equal to the inactivity delay.', 'oli-import-tracker'),
+                    'colImport'      => __('Import', 'oli-import-tracker'),
+                    'colSummary'     => __('Latest summary', 'oli-import-tracker'),
+                    'colCount'       => __('Rows in pmxi_posts', 'oli-import-tracker'),
+                    'colStatus'      => __('Status', 'oli-import-tracker'),
+                    'statusOk'       => __('Consistent', 'oli-import-tracker'),
+                    'statusBad'      => __('Inconsistency fixed', 'oli-import-tracker'),
+                    'addId'          => __('Add import ID', 'oli-import-tracker'),
                 ),
             )
         );
@@ -102,8 +118,8 @@ class OLIIT_Settings {
      */
     public function add_admin_menu() {
         add_options_page(
-            __('Oli Import Tracker Settings', 'wp-all-import-tracker'),
-            __('Import Tracker', 'wp-all-import-tracker'),
+            __('Import Tracker', 'oli-import-tracker'),
+            __('Import Tracker', 'oli-import-tracker'),
             'manage_options',
             'oliit-settings',
             array($this, 'settings_page')
@@ -121,7 +137,7 @@ class OLIIT_Settings {
             'oliit_import_ids',
             array(
                 'type'              => 'array',
-                'default'           => array(1),
+                'default'           => array(),
                 'sanitize_callback' => array($this, 'validate_import_ids'),
             )
         );
@@ -152,7 +168,7 @@ class OLIIT_Settings {
             array(
                 'type'              => 'string',
                 'default'           => '',
-                'sanitize_callback' => 'sanitize_email',
+                'sanitize_callback' => array($this, 'validate_alert_email'),
             )
         );
 
@@ -162,7 +178,7 @@ class OLIIT_Settings {
             array(
                 'type'              => 'integer',
                 'default'           => 150,
-                'sanitize_callback' => 'absint',
+                'sanitize_callback' => array($this, 'validate_stale_threshold'),
             )
         );
 
@@ -172,59 +188,43 @@ class OLIIT_Settings {
             array(
                 'type'              => 'integer',
                 'default'           => 180,
-                'sanitize_callback' => 'absint',
+                'sanitize_callback' => array($this, 'validate_max_execution_time'),
             )
         );
 
         add_settings_section(
-            'oliit_general_section',
-            __('General Settings', 'wp-all-import-tracker'),
-            array($this, 'general_section_callback'),
+            'oliit_imports_section',
+            __('Tracked imports', 'oli-import-tracker'),
+            array($this, 'imports_section_callback'),
             'oliit-settings'
         );
 
         add_settings_field(
             'oliit_import_ids',
-            __('Import IDs', 'wp-all-import-tracker'),
+            __('Imports to track', 'oli-import-tracker'),
             array($this, 'import_ids_callback'),
             'oliit-settings',
-            'oliit_general_section'
+            'oliit_imports_section'
         );
 
         add_settings_field(
             'oliit_enable_auto_refresh',
-            __('Enable Auto Refresh', 'wp-all-import-tracker'),
+            __('Refresh status automatically', 'oli-import-tracker'),
             array($this, 'enable_auto_refresh_callback'),
             'oliit-settings',
-            'oliit_general_section'
-        );
-
-        add_settings_field(
-            'oliit_refresh_cache',
-            __('Refresh Cache', 'wp-all-import-tracker'),
-            array($this, 'refresh_cache_callback'),
-            'oliit-settings',
-            'oliit_general_section'
-        );
-
-        add_settings_field(
-            'oliit_debug_import',
-            __('Debug Import Status', 'wp-all-import-tracker'),
-            array($this, 'debug_import_callback'),
-            'oliit-settings',
-            'oliit_general_section'
+            'oliit_imports_section'
         );
 
         add_settings_section(
             'oliit_email_section',
-            __('Email Alerts', 'wp-all-import-tracker'),
+            __('Email alerts', 'oli-import-tracker'),
             array($this, 'email_section_callback'),
             'oliit-settings'
         );
 
         add_settings_field(
             'oliit_enable_email_alerts',
-            __('Enable Email Alerts', 'wp-all-import-tracker'),
+            __('Email alerts', 'oli-import-tracker'),
             array($this, 'enable_email_alerts_callback'),
             'oliit-settings',
             'oliit_email_section'
@@ -232,41 +232,18 @@ class OLIIT_Settings {
 
         add_settings_field(
             'oliit_alert_email',
-            __('Alert Email Address', 'wp-all-import-tracker'),
+            __('Recipient', 'oli-import-tracker'),
             array($this, 'alert_email_callback'),
             'oliit-settings',
             'oliit_email_section'
         );
 
         add_settings_field(
-            'oliit_stale_threshold',
-            __('Stale Activity Threshold (minutes)', 'wp-all-import-tracker'),
-            array($this, 'stale_threshold_callback'),
+            'oliit_alert_advanced',
+            __('Advanced', 'oli-import-tracker'),
+            array($this, 'alert_advanced_callback'),
             'oliit-settings',
             'oliit_email_section'
-        );
-
-        add_settings_field(
-            'oliit_max_execution_time',
-            __('Max Execution Time (minutes)', 'wp-all-import-tracker'),
-            array($this, 'max_execution_time_callback'),
-            'oliit-settings',
-            'oliit_email_section'
-        );
-
-        add_settings_section(
-            'oliit_notifications_section',
-            __('Notification Management', 'wp-all-import-tracker'),
-            array($this, 'notifications_section_callback'),
-            'oliit-settings'
-        );
-
-        add_settings_field(
-            'oliit_reset_dismissed_notifications',
-            __('Reset Dismissed Notifications', 'wp-all-import-tracker'),
-            array($this, 'reset_dismissed_notifications_callback'),
-            'oliit-settings',
-            'oliit_notifications_section'
         );
     }
 
@@ -280,8 +257,11 @@ class OLIIT_Settings {
             return;
         }
 
+        $tab = $this->current_tab();
+        $base = admin_url('options-general.php?page=oliit-settings');
+
         if (isset($_GET['settings-updated'])) {
-            add_settings_error('oliit_messages', 'oliit_message', __('Settings saved.', 'wp-all-import-tracker'), 'updated');
+            add_settings_error('oliit_messages', 'oliit_message', __('Settings saved.', 'oli-import-tracker'), 'updated');
         }
 
         settings_errors('oliit_messages');
@@ -289,502 +269,365 @@ class OLIIT_Settings {
         <div class="wrap">
             <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
 
-            <div class="oliit-settings-wrapper">
-                <div class="oliit-settings-main">
-                    <form action="options.php" method="post">
-                        <?php
-                        settings_fields('oliit_settings');
-                        do_settings_sections('oliit-settings');
-                        submit_button(__('Save Settings', 'wp-all-import-tracker'));
-                        ?>
-                    </form>
-                </div>
+            <nav class="nav-tab-wrapper">
+                <a href="<?php echo esc_url($base); ?>" class="nav-tab<?php echo 'settings' === $tab ? ' nav-tab-active' : ''; ?>">
+                    <?php esc_html_e('Settings', 'oli-import-tracker'); ?>
+                </a>
+                <a href="<?php echo esc_url(add_query_arg('tab', 'tools', $base)); ?>" class="nav-tab<?php echo 'tools' === $tab ? ' nav-tab-active' : ''; ?>">
+                    <?php esc_html_e('Tools', 'oli-import-tracker'); ?>
+                </a>
+            </nav>
 
-                <div class="oliit-settings-sidebar">
-                    <?php $this->render_tracking_box(); ?>
-                    <?php $this->render_about_box(); ?>
-                    <?php $this->render_email_status_box(); ?>
-                    <?php $this->render_import_id_help_box(); ?>
-                </div>
-            </div>
-        </div>
-        <?php
-    }
-
-    /**
-     * Render currently tracking sidebar box.
-     *
-     * @return void
-     */
-    private function render_tracking_box() {
-        global $wpdb;
-        $configured_import_ids = oliit()->get_import_ids();
-        ?>
-        <div class="oliit-settings-box">
-            <h3><?php esc_html_e('Currently Tracking', 'wp-all-import-tracker'); ?></h3>
             <?php
-            if (oliit_table_exists($wpdb->prefix . 'pmxi_imports')) {
-                $not_found_ids = array();
-
-                foreach ($configured_import_ids as $import_id) {
-                    $import_details = $wpdb->get_row($wpdb->prepare(
-                        "SELECT id, name, path, count FROM {$wpdb->prefix}pmxi_imports WHERE id = %d",
-                        $import_id
-                    ));
-
-                    if ($import_details) {
-                        $import_name   = !empty($import_details->name) ? $import_details->name : basename($import_details->path);
-                        $product_count = $import_details->count ? $import_details->count : __('Unknown', 'wp-all-import-tracker');
-                        ?>
-                        <div class="oliit-import-card">
-                            <p><strong><?php esc_html_e('Import Name:', 'wp-all-import-tracker'); ?></strong> <?php echo esc_html($import_name); ?></p>
-                            <p><strong><?php esc_html_e('Import ID:', 'wp-all-import-tracker'); ?></strong> <?php echo esc_html((string) $import_id); ?></p>
-                            <p><strong><?php esc_html_e('Import Rows:', 'wp-all-import-tracker'); ?></strong> <?php echo esc_html((string) $product_count); ?></p>
-                            <?php
-                            $last_import = $wpdb->get_var($wpdb->prepare(
-                                "SELECT MAX(date) FROM {$wpdb->prefix}pmxi_history WHERE import_id = %d",
-                                $import_id
-                            ));
-                            if ($last_import) :
-                                ?>
-                                <p><strong><?php esc_html_e('Last Import:', 'wp-all-import-tracker'); ?></strong> <?php echo esc_html(wp_date(get_option('date_format') . ' ' . get_option('time_format'), strtotime($last_import))); ?></p>
-                            <?php endif; ?>
-                        </div>
-                        <?php
-                    } else {
-                        $not_found_ids[] = $import_id;
-                    }
-                }
-
-                if (!empty($not_found_ids)) {
-                    echo '<p class="oliit-warning"><strong>' . esc_html__('Warning:', 'wp-all-import-tracker') . '</strong> ';
-                    echo esc_html(
-                        sprintf(
-                            /* translators: %s: import IDs */
-                            __('Import ID(s) %s not found!', 'wp-all-import-tracker'),
-                            implode(', ', $not_found_ids)
-                        )
-                    );
-                    echo '</p>';
-                    echo '<p>' . esc_html__('Please update the Import IDs below.', 'wp-all-import-tracker') . '</p>';
-                }
-            } else {
-                echo '<p class="oliit-warning"><strong>' . esc_html__('Warning:', 'wp-all-import-tracker') . '</strong> ' . esc_html__('WP All Import not detected!', 'wp-all-import-tracker') . '</p>';
+            if ('tools' === $tab) {
+                $this->render_tools_tab();
+                echo '</div>';
+                return;
             }
+
+            $this->render_status_box();
             ?>
-        </div>
-        <?php
-    }
-
-    /**
-     * Render about sidebar box.
-     *
-     * @return void
-     */
-    private function render_about_box() {
-        ?>
-        <div class="oliit-settings-box">
-            <h3><?php esc_html_e('About This Plugin', 'wp-all-import-tracker'); ?></h3>
-            <p><?php esc_html_e('Oli Import Tracker for WP All Import helps you monitor which WooCommerce products were updated or skipped during WP All Import runs.', 'wp-all-import-tracker'); ?></p>
-            <h4><?php esc_html_e('Features:', 'wp-all-import-tracker'); ?></h4>
-            <ul>
-                <li><?php esc_html_e('Import column in product list', 'wp-all-import-tracker'); ?></li>
-                <li><?php esc_html_e('Filter products by import status', 'wp-all-import-tracker'); ?></li>
-                <li><?php esc_html_e('Precise timestamps for updated products', 'wp-all-import-tracker'); ?></li>
-                <li><?php esc_html_e('Automatic cache refresh after imports', 'wp-all-import-tracker'); ?></li>
-            </ul>
-        </div>
-        <?php
-    }
-
-    /**
-     * Render email status sidebar box.
-     *
-     * @return void
-     */
-    private function render_email_status_box() {
-        $email_alerts_enabled = get_option('oliit_enable_email_alerts', 0);
-        $alert_email          = get_option('oliit_alert_email', '');
-        ?>
-        <div class="oliit-settings-box">
-            <h3><?php esc_html_e('Email Alerts Status', 'wp-all-import-tracker'); ?></h3>
-            <?php if ($email_alerts_enabled) : ?>
-                <p class="oliit-success"><strong><?php esc_html_e('Status:', 'wp-all-import-tracker'); ?></strong> <?php esc_html_e('Enabled', 'wp-all-import-tracker'); ?></p>
+            <form action="options.php" method="post" id="oliit-settings-form">
                 <?php
-                $email_to_use = !empty($alert_email) ? $alert_email : get_option('admin_email');
+                settings_fields('oliit_settings');
+                do_settings_sections('oliit-settings');
+                submit_button(__('Save Settings', 'oli-import-tracker'));
                 ?>
-                <p><strong><?php esc_html_e('Alert Email:', 'wp-all-import-tracker'); ?></strong> <?php echo esc_html($email_to_use); ?></p>
-                <?php
-                if (class_exists('OLIIT_Email_Alerts')) {
-                    $status = OLIIT_Email_Alerts::get_import_status_summary();
-                    echo '<p><strong>' . esc_html__('Import Status:', 'wp-all-import-tracker') . '</strong> ' . esc_html($status) . '</p>';
-                }
-
-                $next_cron = wp_next_scheduled('oliit_check_import_status');
-                if ($next_cron) {
-                    echo '<p><strong>' . esc_html__('Next Check:', 'wp-all-import-tracker') . '</strong> ' . esc_html(wp_date(get_option('date_format') . ' ' . get_option('time_format'), $next_cron)) . '</p>';
-                }
-                ?>
-            <?php else : ?>
-                <p class="oliit-warning"><strong><?php esc_html_e('Status:', 'wp-all-import-tracker'); ?></strong> <?php esc_html_e('Disabled', 'wp-all-import-tracker'); ?></p>
-                <p><?php esc_html_e('Enable email alerts below to monitor import failures.', 'wp-all-import-tracker'); ?></p>
-            <?php endif; ?>
+            </form>
         </div>
         <?php
     }
 
     /**
-     * Render import ID help box.
+     * Status box at the top of the settings tab.
      *
      * @return void
      */
-    private function render_import_id_help_box() {
-        ?>
-        <div class="oliit-settings-box">
-            <h3><?php esc_html_e('How to Find Import ID', 'wp-all-import-tracker'); ?></h3>
-            <p><?php esc_html_e('To find your WP All Import ID:', 'wp-all-import-tracker'); ?></p>
-            <ol>
-                <li><?php esc_html_e('Go to All Import > Manage Imports', 'wp-all-import-tracker'); ?></li>
-                <li><?php esc_html_e('Look at the URL when editing an import', 'wp-all-import-tracker'); ?></li>
-                <li><?php esc_html_e('The ID is the number in "id=" parameter', 'wp-all-import-tracker'); ?></li>
-            </ol>
-            <p><em><?php esc_html_e('Example: ...&id=11 means Import ID is 11', 'wp-all-import-tracker'); ?></em></p>
-        </div>
-        <?php
-    }
-
-    /**
-     * General section callback.
-     *
-     * @return void
-     */
-    public function general_section_callback() {
-        echo '<p>' . esc_html__('Configure the basic settings for Oli Import Tracker for WP All Import.', 'wp-all-import-tracker') . '</p>';
-    }
-
-    /**
-     * Import IDs field callback.
-     *
-     * @return void
-     */
-    public function import_ids_callback() {
-        global $wpdb;
-        $values = get_option('oliit_import_ids', array(1));
-        if (!is_array($values)) {
-            $values = array($values);
+    private function render_status_box() {
+        $imports = oliit_get_available_imports();
+        $tracked = oliit()->get_import_ids();
+        $alerts  = (bool) get_option('oliit_enable_email_alerts', 0);
+        $email   = get_option('oliit_alert_email', '');
+        if (empty($email)) {
+            $email = get_option('admin_email');
         }
 
-        echo '<div id="oliit_import_ids_container">';
-        foreach ($values as $value) {
-            echo '<div class="oliit-import-id-row">';
-            echo '<input type="number" name="oliit_import_ids[]" value="' . esc_attr($value) . '" min="1" class="regular-text oliit-import-id-input" />';
-            if (count($values) > 1) {
-                echo '<button type="button" class="button oliit-remove-import-id">' . esc_html__('Remove', 'wp-all-import-tracker') . '</button>';
-            }
-            echo '</div>';
+        if (!oliit_wpai_is_available()) {
+            echo '<div class="notice notice-error inline"><p>';
+            echo esc_html__('WP All Import must be active.', 'oli-import-tracker');
+            echo ' <a href="' . esc_url(admin_url('plugins.php')) . '">' . esc_html__('Open plugins', 'oli-import-tracker') . '</a>';
+            echo '</p></div>';
+            return;
         }
-        echo '</div>';
 
-        echo '<button type="button" id="oliit_add_import_id" class="button oliit-add-import-id">' . esc_html__('Add Another Import ID', 'wp-all-import-tracker') . '</button>';
-        echo '<button type="button" id="oliit_detect_imports" class="button oliit-detect-imports">' . esc_html__('Detect Available Imports', 'wp-all-import-tracker') . '</button>';
-        echo '<p class="description">' . esc_html__('The WP All Import IDs to track. You can track multiple imports by adding more IDs.', 'wp-all-import-tracker') . '</p>';
-
-        if (oliit_table_exists($wpdb->prefix . 'pmxi_imports')) {
-            echo '<div id="oliit_available_imports" class="oliit-available-imports">';
-            echo '<h4>' . esc_html__('Available Imports:', 'wp-all-import-tracker') . '</h4>';
-
-            $imports = $wpdb->get_results("SELECT id, name, path FROM {$wpdb->prefix}pmxi_imports ORDER BY id DESC LIMIT 10");
-
-            if ($imports) {
-                echo '<table class="widefat oliit-available-imports-table">';
-                echo '<thead><tr><th>' . esc_html__('ID', 'wp-all-import-tracker') . '</th><th>' . esc_html__('Import Name', 'wp-all-import-tracker') . '</th><th>' . esc_html__('Action', 'wp-all-import-tracker') . '</th></tr></thead>';
-                echo '<tbody>';
-
-                foreach ($imports as $import) {
-                    $import_name = !empty($import->name) ? $import->name : basename($import->path);
-                    $is_tracked  = in_array((int) $import->id, array_map('intval', $values), true) ? ' ' . __('(Tracked)', 'wp-all-import-tracker') : '';
-                    echo '<tr>';
-                    echo '<td><strong>' . esc_html((string) $import->id) . '</strong></td>';
-                    echo '<td>' . esc_html($import_name . $is_tracked) . '</td>';
-                    echo '<td><button type="button" class="button-secondary oliit-add-import" data-import-id="' . esc_attr($import->id) . '">' . esc_html__('Add', 'wp-all-import-tracker') . '</button></td>';
-                    echo '</tr>';
-                }
-
-                echo '</tbody></table>';
-            } else {
-                echo '<p><em>' . esc_html__('No imports found. Make sure you have created at least one import in WP All Import.', 'wp-all-import-tracker') . '</em></p>';
-            }
-
-            echo '</div>';
+        if (empty($imports)) {
+            echo '<div class="notice notice-info inline"><p>';
+            echo esc_html__('No WP All Import jobs found. Create an import, then come back here.', 'oli-import-tracker');
+            echo '</p></div>';
+            return;
         }
-    }
 
-    /**
-     * Enable auto refresh field callback.
-     *
-     * @return void
-     */
-    public function enable_auto_refresh_callback() {
-        $value = get_option('oliit_enable_auto_refresh', 1);
-        echo '<input type="checkbox" id="oliit_enable_auto_refresh" name="oliit_enable_auto_refresh" value="1"' . checked(1, $value, false) . ' />';
-        echo '<label for="oliit_enable_auto_refresh">' . esc_html__('Automatically refresh cache when imports start/finish', 'wp-all-import-tracker') . '</label>';
-        echo '<p class="description">' . esc_html__('Recommended to keep enabled for automatic updates.', 'wp-all-import-tracker') . '</p>';
-    }
-
-    /**
-     * Email section callback.
-     *
-     * @return void
-     */
-    public function email_section_callback() {
-        echo '<p>' . esc_html__('Configure email alerts for import failures and issues. The system will monitor your imports and send alerts when problems are detected.', 'wp-all-import-tracker') . '</p>';
-    }
-
-    /**
-     * Enable email alerts field callback.
-     *
-     * @return void
-     */
-    public function enable_email_alerts_callback() {
-        $value = get_option('oliit_enable_email_alerts', 0);
-        echo '<input type="checkbox" id="oliit_enable_email_alerts" name="oliit_enable_email_alerts" value="1"' . checked(1, $value, false) . ' />';
-        echo '<label for="oliit_enable_email_alerts">' . esc_html__('Enable email alerts for import failures', 'wp-all-import-tracker') . '</label>';
-        echo '<p class="description">' . esc_html__('When enabled, the system will monitor imports and send email alerts when issues are detected.', 'wp-all-import-tracker') . '</p>';
-    }
-
-    /**
-     * Alert email field callback.
-     *
-     * @return void
-     */
-    public function alert_email_callback() {
-        $value = get_option('oliit_alert_email', '');
-        echo '<input type="email" id="oliit_alert_email" name="oliit_alert_email" value="' . esc_attr($value) . '" class="regular-text" />';
-        echo '<button type="button" id="oliit_test_email" class="button oliit-test-email">' . esc_html__('Send Test Email', 'wp-all-import-tracker') . '</button>';
-        echo '<p class="description">' . esc_html__('Email address to receive import failure notifications. Leave empty to use the admin email.', 'wp-all-import-tracker') . '</p>';
-        echo '<div id="oliit_test_email_result" class="oliit-ajax-result"></div>';
-    }
-
-    /**
-     * Stale threshold field callback.
-     *
-     * @return void
-     */
-    public function stale_threshold_callback() {
-        $value = get_option('oliit_stale_threshold', 150);
-        echo '<input type="number" id="oliit_stale_threshold" name="oliit_stale_threshold" value="' . esc_attr($value) . '" min="30" max="1440" class="small-text" />';
-        echo '<p class="description">' . esc_html__('Minutes of inactivity before considering an import as stale. Default: 150 minutes.', 'wp-all-import-tracker') . '</p>';
-    }
-
-    /**
-     * Max execution time field callback.
-     *
-     * @return void
-     */
-    public function max_execution_time_callback() {
-        $value = get_option('oliit_max_execution_time', 180);
-        echo '<input type="number" id="oliit_max_execution_time" name="oliit_max_execution_time" value="' . esc_attr($value) . '" min="60" max="1440" class="small-text" />';
-        echo '<p class="description">' . esc_html__('Maximum execution time in minutes before considering an import as overrunning. Default: 180 minutes.', 'wp-all-import-tracker') . '</p>';
-    }
-
-    /**
-     * Refresh cache field callback.
-     *
-     * @return void
-     */
-    public function refresh_cache_callback() {
-        echo '<button type="button" id="oliit_refresh_cache" class="button">' . esc_html__('Refresh Import Cache Now', 'wp-all-import-tracker') . '</button>';
-        echo '<p class="description">' . esc_html__('Click to immediately refresh the import status cache and update the product counts.', 'wp-all-import-tracker') . '</p>';
-        echo '<div id="oliit_refresh_result" class="oliit-ajax-result"></div>';
-    }
-
-    /**
-     * Debug import callback.
-     *
-     * @return void
-     */
-    public function debug_import_callback() {
-        global $wpdb;
-        $configured_import_ids = oliit()->get_import_ids();
-
-        echo '<button type="button" id="oliit_debug_import" class="button">' . esc_html__('Check Import Data Consistency', 'wp-all-import-tracker') . '</button>';
-        echo '<p class="description">' . esc_html__('Check for inconsistencies between import history and pmxi_posts table.', 'wp-all-import-tracker') . '</p>';
-        echo '<div id="oliit_debug_result" class="oliit-ajax-result"></div>';
-
-        echo '<div class="oliit-debug-status">';
-        echo '<strong>' . esc_html__('Current Status:', 'wp-all-import-tracker') . '</strong><br><br>';
-
-        foreach ($configured_import_ids as $import_id) {
-            $latest_summary = $wpdb->get_var($wpdb->prepare(
-                "SELECT summary FROM {$wpdb->prefix}pmxi_history WHERE import_id = %d ORDER BY date DESC LIMIT 1",
-                $import_id
-            ));
-
-            $total_in_pmxi = $wpdb->get_var($wpdb->prepare(
-                "SELECT COUNT(*) FROM {$wpdb->prefix}pmxi_posts WHERE import_id = %d",
-                $import_id
-            ));
-
-            echo '<strong>' . esc_html(sprintf(/* translators: %d: import ID */ __('Import ID %d:', 'wp-all-import-tracker'), $import_id)) . '</strong><br>';
-            echo esc_html__('Latest import summary:', 'wp-all-import-tracker') . ' ' . esc_html((string) $latest_summary) . '<br>';
-            echo esc_html__('Products in pmxi_posts table:', 'wp-all-import-tracker') . ' ' . esc_html((string) $total_in_pmxi) . '<br>';
-
-            if (is_string($latest_summary) && false !== strpos($latest_summary, '0 updated') && $total_in_pmxi > 0) {
-                echo '<span class="oliit-warning"><strong>' . esc_html__('Inconsistency detected.', 'wp-all-import-tracker') . '</strong></span>';
-            } else {
-                echo '<span class="oliit-success"><strong>' . esc_html__('Data looks consistent', 'wp-all-import-tracker') . '</strong></span>';
-            }
-            echo '<br><br>';
+        echo '<div class="notice notice-info inline"><p>';
+        if ($alerts) {
+            echo esc_html(
+                sprintf(
+                    /* translators: 1: number of imports, 2: email address */
+                    _n(
+                        'Monitoring active for %1$d import · Alerts sent to %2$s',
+                        'Monitoring active for %1$d imports · Alerts sent to %2$s',
+                        count($tracked),
+                        'oli-import-tracker'
+                    ),
+                    count($tracked),
+                    $email
+                )
+            );
+        } else {
+            echo esc_html(
+                sprintf(
+                    /* translators: %d: number of imports */
+                    _n(
+                        'Monitoring active for %d import · Email alerts are off',
+                        'Monitoring active for %d imports · Email alerts are off',
+                        count($tracked),
+                        'oli-import-tracker'
+                    ),
+                    count($tracked)
+                )
+            );
         }
-        echo '</div>';
+        echo '</p></div>';
     }
 
     /**
-     * Notifications section callback.
+     * Tools tab (actions only).
      *
      * @return void
      */
-    public function notifications_section_callback() {
-        echo '<p>' . esc_html__('Manage import error notifications and their dismissal settings.', 'wp-all-import-tracker') . '</p>';
-    }
-
-    /**
-     * Reset dismissed notifications callback.
-     *
-     * @return void
-     */
-    public function reset_dismissed_notifications_callback() {
+    private function render_tools_tab() {
         $dismissed_count = count(get_option('oliit_dismissed_notifications', array()));
         ?>
-        <div>
+        <div class="oliit-tools">
+            <h2><?php esc_html_e('Tools', 'oli-import-tracker'); ?></h2>
+            <p><?php esc_html_e('These actions do not change your saved settings.', 'oli-import-tracker'); ?></p>
+
+            <p>
+                <button type="button" id="oliit_refresh_cache" class="button button-secondary">
+                    <?php esc_html_e('Refresh now', 'oli-import-tracker'); ?>
+                </button>
+            </p>
+            <div id="oliit_refresh_result" class="oliit-ajax-result" role="status" aria-live="polite"></div>
+
+            <p>
+                <button type="button" id="oliit_debug_import" class="button button-secondary">
+                    <?php esc_html_e('Diagnose imports', 'oli-import-tracker'); ?>
+                </button>
+            </p>
+            <div id="oliit_debug_result" class="oliit-ajax-result" role="status" aria-live="polite"></div>
+
             <p>
                 <?php
                 echo esc_html(
                     sprintf(
-                        /* translators: %d: dismissed notification count */
-                        __('Currently have %d dismissed notifications stored.', 'wp-all-import-tracker'),
+                        /* translators: %d: dismissed notice count */
+                        _n('%d dismissed notice', '%d dismissed notices', $dismissed_count, 'oli-import-tracker'),
                         $dismissed_count
                     )
                 );
                 ?>
             </p>
-            <button type="button" id="oliit-reset-notifications" class="button button-secondary">
-                <?php esc_html_e('Reset All Dismissed Notifications', 'wp-all-import-tracker'); ?>
-            </button>
-            <span id="oliit-reset-notifications-result" class="oliit-reset-result"></span>
-            <p class="description">
-                <?php esc_html_e('This will show all previously dismissed import error notifications again. Use this if you want to see notifications for issues that were previously dismissed.', 'wp-all-import-tracker'); ?>
+            <p>
+                <button type="button" id="oliit-reset-notifications" class="button button-secondary">
+                    <?php esc_html_e('Show dismissed notices again', 'oli-import-tracker'); ?>
+                </button>
             </p>
+            <div id="oliit-reset-notifications-result" class="oliit-ajax-result" role="status" aria-live="polite"></div>
         </div>
         <?php
     }
 
     /**
-     * Validate import IDs.
+     * Tracked imports section.
+     *
+     * @return void
+     */
+    public function imports_section_callback() {
+        echo '<p>' . esc_html__('Choose which WP All Import jobs to monitor. Scheduled (cron) jobs are selected on first activation when they can be detected.', 'oli-import-tracker') . '</p>';
+    }
+
+    /**
+     * Import checkboxes.
+     *
+     * @return void
+     */
+    public function import_ids_callback() {
+        $imports = oliit_get_available_imports();
+        $values  = oliit()->get_import_ids();
+        $known   = array();
+
+        echo '<input type="hidden" name="oliit_import_ids[]" value="" />';
+        echo '<fieldset class="oliit-import-fieldset">';
+        echo '<legend class="screen-reader-text">' . esc_html__('Imports to track', 'oli-import-tracker') . '</legend>';
+
+        if (count($imports) > 10) {
+            echo '<p><label for="oliit-import-filter" class="screen-reader-text">' . esc_html__('Filter imports', 'oli-import-tracker') . '</label>';
+            echo '<input type="search" id="oliit-import-filter" class="regular-text" placeholder="' . esc_attr__('Filter imports', 'oli-import-tracker') . '" /></p>';
+        }
+
+        echo '<div id="oliit-import-list">';
+        foreach ($imports as $import) {
+            $known[] = (int) $import['id'];
+            $label   = sprintf(
+                /* translators: 1: import ID, 2: import name, 3: last run label */
+                __('#%1$d — %2$s (last run: %3$s)', 'oli-import-tracker'),
+                $import['id'],
+                $import['name'],
+                $import['last_run_label']
+            );
+            echo '<label class="oliit-import-choice">';
+            echo '<input type="checkbox" name="oliit_import_ids[]" value="' . esc_attr((string) $import['id']) . '" ' . checked(in_array((int) $import['id'], $values, true), true, false) . ' /> ';
+            echo esc_html($label);
+            echo '</label>';
+        }
+
+        $orphans = array_diff($values, $known);
+        foreach ($orphans as $orphan_id) {
+            $label = sprintf(
+                /* translators: %d: import ID */
+                __('#%d — saved ID (not in WP All Import)', 'oli-import-tracker'),
+                $orphan_id
+            );
+            echo '<label class="oliit-import-choice">';
+            echo '<input type="checkbox" name="oliit_import_ids[]" value="' . esc_attr((string) $orphan_id) . '" checked="checked" /> ';
+            echo esc_html($label);
+            echo '</label>';
+        }
+
+        if (empty($imports) && empty($orphans)) {
+            echo '<p>' . esc_html__('No imports to list yet.', 'oli-import-tracker') . '</p>';
+        }
+        echo '</div>';
+        echo '</fieldset>';
+
+        echo '<details class="oliit-advanced">';
+        echo '<summary>' . esc_html__('Advanced: add an import ID manually', 'oli-import-tracker') . '</summary>';
+        echo '<p class="description">' . esc_html__('Use this if an import was deleted and recreated with a new ID.', 'oli-import-tracker') . '</p>';
+        echo '<p><label for="oliit-manual-import-id">' . esc_html__('Import ID', 'oli-import-tracker') . '</label> ';
+        echo '<input type="number" id="oliit-manual-import-id" min="1" class="small-text" /> ';
+        echo '<button type="button" id="oliit-add-manual-id" class="button">' . esc_html__('Add import ID', 'oli-import-tracker') . '</button></p>';
+        echo '</details>';
+    }
+
+    /**
+     * Auto refresh field.
+     *
+     * @return void
+     */
+    public function enable_auto_refresh_callback() {
+        $value = get_option('oliit_enable_auto_refresh', 1);
+        echo '<input type="hidden" name="oliit_enable_auto_refresh" value="0" />';
+        echo '<label for="oliit_enable_auto_refresh">';
+        echo '<input type="checkbox" id="oliit_enable_auto_refresh" name="oliit_enable_auto_refresh" value="1"' . checked(1, $value, false) . ' /> ';
+        echo esc_html__('Refresh status automatically', 'oli-import-tracker');
+        echo '</label>';
+        echo '<p class="description">' . esc_html__('Updates the status in the admin without reloading the page.', 'oli-import-tracker') . '</p>';
+    }
+
+    /**
+     * Email section intro.
+     *
+     * @return void
+     */
+    public function email_section_callback() {
+        echo '<p>' . esc_html__('Email alerts stay off until you enable them.', 'oli-import-tracker') . '</p>';
+    }
+
+    /**
+     * Enable email alerts field.
+     *
+     * @return void
+     */
+    public function enable_email_alerts_callback() {
+        $value = get_option('oliit_enable_email_alerts', 0);
+        echo '<input type="hidden" name="oliit_enable_email_alerts" value="0" />';
+        echo '<label for="oliit_enable_email_alerts">';
+        echo '<input type="checkbox" id="oliit_enable_email_alerts" name="oliit_enable_email_alerts" value="1"' . checked(1, $value, false) . ' /> ';
+        echo esc_html__('Email alerts', 'oli-import-tracker');
+        echo '</label>';
+        echo '<p class="description">' . esc_html__('Notify me when an import fails, gets stuck, or runs longer than expected.', 'oli-import-tracker') . '</p>';
+    }
+
+    /**
+     * Alert email field.
+     *
+     * @return void
+     */
+    public function alert_email_callback() {
+        $value = get_option('oliit_alert_email', '');
+        echo '<div id="oliit-alert-email-wrap"' . (get_option('oliit_enable_email_alerts', 0) ? '' : ' hidden') . '>';
+        echo '<input type="email" id="oliit_alert_email" name="oliit_alert_email" value="' . esc_attr($value) . '" class="regular-text" placeholder="' . esc_attr(get_option('admin_email')) . '" />';
+        echo '<button type="button" id="oliit_test_email" class="button oliit-test-email">' . esc_html__('Send a test email', 'oli-import-tracker') . '</button>';
+        echo '<p class="description">' . esc_html__('Leave empty to use the site admin email.', 'oli-import-tracker') . '</p>';
+        echo '<p id="oliit_alert_email_error" class="oliit-field-error" hidden></p>';
+        echo '<div id="oliit_test_email_result" class="oliit-ajax-result" role="status" aria-live="polite"></div>';
+        echo '</div>';
+    }
+
+    /**
+     * Advanced alert thresholds.
+     *
+     * @return void
+     */
+    public function alert_advanced_callback() {
+        $stale   = get_option('oliit_stale_threshold', 150);
+        $maximum = get_option('oliit_max_execution_time', 180);
+        $hidden  = get_option('oliit_enable_email_alerts', 0) ? '' : ' hidden';
+        ?>
+        <div id="oliit-alert-advanced-wrap"<?php echo $hidden ? ' hidden' : ''; ?>>
+            <details class="oliit-advanced">
+                <summary><?php esc_html_e('Thresholds', 'oli-import-tracker'); ?></summary>
+                <p>
+                    <label for="oliit_stale_threshold"><?php esc_html_e('Inactivity before alert (minutes)', 'oli-import-tracker'); ?></label><br />
+                    <input type="number" id="oliit_stale_threshold" name="oliit_stale_threshold" value="<?php echo esc_attr((string) $stale); ?>" min="15" max="1440" class="small-text" />
+                </p>
+                <p class="description"><?php esc_html_e('No records processed for this long.', 'oli-import-tracker'); ?></p>
+                <p>
+                    <label for="oliit_max_execution_time"><?php esc_html_e('Maximum run time (minutes)', 'oli-import-tracker'); ?></label><br />
+                    <input type="number" id="oliit_max_execution_time" name="oliit_max_execution_time" value="<?php echo esc_attr((string) $maximum); ?>" min="30" max="1440" class="small-text" />
+                </p>
+                <p class="description"><?php esc_html_e('Must be greater than or equal to the inactivity delay.', 'oli-import-tracker'); ?></p>
+            </details>
+        </div>
+        <?php
+    }
+
+    /**
+     * Validate import IDs. Empty is allowed.
      *
      * @param mixed $values Submitted values.
-     * @return array
+     * @return int[]
      */
     public function validate_import_ids($values) {
-        global $wpdb;
+        $ids = oliit_sanitize_id_list($values);
+        return array_values(array_unique($ids));
+    }
 
-        if (!is_array($values)) {
-            $values = array($values);
-        }
-
-        $valid_import_ids = array();
-        $invalid_ids      = array();
-
-        foreach ($values as $value) {
-            $import_id = absint($value);
-            if ($import_id > 0) {
-                $valid_import_ids[] = $import_id;
-            } else {
-                $invalid_ids[] = $value;
-            }
-        }
-
-        if (!empty($invalid_ids)) {
+    /**
+     * Validate alert email.
+     *
+     * @param string $value Submitted email.
+     * @return string
+     */
+    public function validate_alert_email($value) {
+        $value = sanitize_email($value);
+        if ('' !== $value && !is_email($value)) {
             add_settings_error(
-                'oliit_import_ids',
-                'invalid_import_ids',
-                __('Some import IDs are invalid. Only positive numbers are allowed.', 'wp-all-import-tracker'),
+                'oliit_alert_email',
+                'oliit_invalid_email',
+                __('Enter a valid email address.', 'oli-import-tracker'),
                 'error'
             );
-            return get_option('oliit_import_ids', array(1));
+            return get_option('oliit_alert_email', '');
         }
+        return $value;
+    }
 
-        if (empty($valid_import_ids)) {
+    /**
+     * Validate stale threshold (minimum 15).
+     *
+     * @param mixed $value Submitted value.
+     * @return int
+     */
+    public function validate_stale_threshold($value) {
+        return max(15, absint($value));
+    }
+
+    /**
+     * Validate max execution time (minimum 30, >= stale).
+     *
+     * @param mixed $value Submitted value.
+     * @return int
+     */
+    public function validate_max_execution_time($value) {
+        $value = max(30, absint($value));
+        $stale = (int) get_option('oliit_stale_threshold', 150);
+        // phpcs:disable WordPress.Security.NonceVerification.Missing -- Settings API verifies the nonce before this callback.
+        if (isset($_POST['oliit_stale_threshold'])) {
+            $stale = max(15, absint(wp_unslash($_POST['oliit_stale_threshold'])));
+        }
+        // phpcs:enable WordPress.Security.NonceVerification.Missing
+
+        if ($value < $stale) {
             add_settings_error(
-                'oliit_import_ids',
-                'no_import_ids',
-                __('At least one import ID is required.', 'wp-all-import-tracker'),
+                'oliit_max_execution_time',
+                'oliit_threshold_mismatch',
+                __('Maximum run time must be greater than or equal to the inactivity delay.', 'oli-import-tracker'),
                 'error'
             );
-            return get_option('oliit_import_ids', array(1));
+            return $stale;
         }
 
-        $valid_import_ids = array_values(array_unique($valid_import_ids));
-
-        if (!oliit_table_exists($wpdb->prefix . 'pmxi_imports')) {
-            add_settings_error(
-                'oliit_import_ids',
-                'no_wpai_tables',
-                __('WP All Import tables not found. Please make sure WP All Import is installed and activated.', 'wp-all-import-tracker'),
-                'error'
-            );
-            return get_option('oliit_import_ids', array(1));
-        }
-
-        $not_found_ids = array();
-        $found_imports = array();
-
-        foreach ($valid_import_ids as $import_id) {
-            $import_exists = $wpdb->get_row($wpdb->prepare(
-                "SELECT id, name, path, count FROM {$wpdb->prefix}pmxi_imports WHERE id = %d",
-                $import_id
-            ));
-
-            if ($import_exists) {
-                $found_imports[] = $import_exists;
-            } else {
-                $not_found_ids[] = $import_id;
-            }
-        }
-
-        if (!empty($not_found_ids)) {
-            add_settings_error(
-                'oliit_import_ids',
-                'import_ids_not_found',
-                sprintf(
-                    /* translators: %s: import IDs */
-                    __('Import ID(s) %s not found in WP All Import. Please check the IDs and try again.', 'wp-all-import-tracker'),
-                    implode(', ', $not_found_ids)
-                ),
-                'error'
-            );
-            return get_option('oliit_import_ids', array(1));
-        }
-
-        $import_details = array();
-        foreach ($found_imports as $import) {
-            $import_name   = !empty($import->name) ? $import->name : basename($import->path);
-            $product_count = $import->count ? $import->count : __('Unknown', 'wp-all-import-tracker');
-            $import_details[] = sprintf('"%s" (ID: %d, Products: %s)', $import_name, $import->id, $product_count);
-        }
-
-        add_settings_error(
-            'oliit_import_ids',
-            'import_ids_updated',
-            sprintf(
-                /* translators: %s: import details */
-                __('Import IDs updated successfully! Now tracking: %s', 'wp-all-import-tracker'),
-                implode(', ', $import_details)
-            ),
-            'updated'
-        );
-
-        return $valid_import_ids;
+        return $value;
     }
 
     /**
@@ -796,23 +639,24 @@ class OLIIT_Settings {
         check_ajax_referer('oliit_test_email');
 
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(__('Insufficient permissions.', 'wp-all-import-tracker'));
+            wp_send_json_error(__('Insufficient permissions.', 'oli-import-tracker'));
         }
 
         $email = isset($_POST['email']) ? sanitize_email(wp_unslash($_POST['email'])) : '';
         if (empty($email)) {
-            wp_send_json_error(__('Please enter a valid email address.', 'wp-all-import-tracker'));
+            $email = get_option('admin_email');
+        }
+        if (empty($email) || !is_email($email)) {
+            wp_send_json_error(__('Enter a valid email address.', 'oli-import-tracker'));
         }
 
         require_once OLIIT_PLUGIN_DIR . 'includes/class-email-alerts.php';
-        $email_alerts = new OLIIT_Email_Alerts();
-
+        $email_alerts   = new OLIIT_Email_Alerts();
         $original_email = get_option('oliit_alert_email', '');
         update_option('oliit_alert_email', $email);
-
         $result = $email_alerts->send_test_email();
 
-        if (empty($original_email)) {
+        if ('' === $original_email) {
             delete_option('oliit_alert_email');
         } else {
             update_option('oliit_alert_email', $original_email);
@@ -822,13 +666,13 @@ class OLIIT_Settings {
             wp_send_json_success(
                 sprintf(
                     /* translators: %s: email address */
-                    __('Test email sent successfully to %s!', 'wp-all-import-tracker'),
+                    __('Test email sent to %s.', 'oli-import-tracker'),
                     $email
                 )
             );
         }
 
-        wp_send_json_error(__('Failed to send test email. Please check your email configuration.', 'wp-all-import-tracker'));
+        wp_send_json_error(__('Failed to send the test email. Check the site mailer.', 'oli-import-tracker'));
     }
 
     /**
@@ -840,48 +684,42 @@ class OLIIT_Settings {
         check_ajax_referer('oliit_refresh_cache');
 
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(__('Insufficient permissions.', 'wp-all-import-tracker'));
+            wp_send_json_error(__('Insufficient permissions.', 'oli-import-tracker'));
         }
 
-        $import_ids = array();
+        $import_ids = oliit()->get_import_ids();
         if (isset($_POST['import_ids'])) {
-            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized by oliit_sanitize_id_list().
-            $import_ids = oliit_sanitize_id_list(wp_unslash($_POST['import_ids']));
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+            $posted = oliit_sanitize_id_list(wp_unslash($_POST['import_ids']));
+            if (!empty($posted)) {
+                $import_ids = $posted;
+            }
         }
-
-        $total_updated = 0;
-        $total_skipped = 0;
-        $results       = array();
 
         require_once OLIIT_PLUGIN_DIR . 'includes/class-admin.php';
-        $admin = new OLIIT_Admin();
+        $admin         = new OLIIT_Admin();
+        $total_updated = 0;
+        $total_skipped = 0;
+        $lines         = array();
 
         foreach ($import_ids as $import_id) {
-            if ($import_id <= 0) {
-                continue;
-            }
-
             delete_transient('oliit_counts_' . $import_id);
-
-            $counts = $admin->get_import_status_counts($import_id);
+            $counts         = $admin->get_import_status_counts($import_id);
             $total_updated += $counts['updated'];
             $total_skipped += $counts['skipped'];
-            $results[] = sprintf(
+            $lines[]        = sprintf(
                 /* translators: 1: import ID, 2: updated count, 3: skipped count */
-                __('Import ID %1$d: Updated: %2$d, Skipped: %3$d', 'wp-all-import-tracker'),
+                __('Import #%1$d: %2$d updated, %3$d skipped', 'oli-import-tracker'),
                 $import_id,
                 $counts['updated'],
                 $counts['skipped']
             );
         }
 
-        $message  = __('Cache refreshed successfully!', 'wp-all-import-tracker') . "\n" . implode("\n", $results);
-        $message .= "\n" . sprintf(
-            /* translators: 1: total updated count, 2: total skipped count */
-            __('Total - Updated: %1$d, Skipped: %2$d', 'wp-all-import-tracker'),
-            $total_updated,
-            $total_skipped
-        );
+        $message = __('Cache refreshed.', 'oli-import-tracker');
+        if ($lines) {
+            $message .= ' ' . implode(' · ', $lines);
+        }
 
         wp_send_json_success($message);
     }
@@ -897,65 +735,47 @@ class OLIIT_Settings {
         check_ajax_referer('oliit_debug_import');
 
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(__('Insufficient permissions.', 'wp-all-import-tracker'));
+            wp_send_json_error(__('Insufficient permissions.', 'oli-import-tracker'));
         }
 
-        $import_ids = array();
-        if (isset($_POST['import_ids'])) {
-            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized by oliit_sanitize_id_list().
-            $import_ids = oliit_sanitize_id_list(wp_unslash($_POST['import_ids']));
-        }
-
-        $message     = "Debug Results:\n";
-        $total_fixed = 0;
+        $import_ids = oliit()->get_import_ids();
+        $rows       = array();
 
         foreach ($import_ids as $import_id) {
-            if ($import_id <= 0) {
-                continue;
-            }
+            $latest_summary = $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT summary FROM {$wpdb->prefix}pmxi_history WHERE import_id = %d ORDER BY date DESC LIMIT 1",
+                    $import_id
+                )
+            );
+            $total_in_pmxi = $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$wpdb->prefix}pmxi_posts WHERE import_id = %d",
+                    $import_id
+                )
+            );
 
-            $message .= "\n--- Import ID {$import_id} ---\n";
-
-            $latest_summary = $wpdb->get_var($wpdb->prepare(
-                "SELECT summary FROM {$wpdb->prefix}pmxi_history WHERE import_id = %d ORDER BY date DESC LIMIT 1",
-                $import_id
-            ));
-
-            $total_in_pmxi = $wpdb->get_var($wpdb->prepare(
-                "SELECT COUNT(*) FROM {$wpdb->prefix}pmxi_posts WHERE import_id = %d",
-                $import_id
-            ));
-
-            $message .= "Latest import: {$latest_summary}\n";
-            $message .= "Products in pmxi_posts: {$total_in_pmxi}\n";
-
+            $fixed = false;
             if (is_string($latest_summary) && false !== strpos($latest_summary, '0 updated') && $total_in_pmxi > 0) {
-                $message .= "\nINCONSISTENCY DETECTED!\n";
-                $message .= "Import shows 0 updated but pmxi_posts table has {$total_in_pmxi} entries.\n";
-                $message .= "This suggests WP All Import didn't clear the table properly.\n\n";
-                $message .= "FIXING: Clearing pmxi_posts table for this import...\n";
-
-                $deleted = $wpdb->delete(
+                $wpdb->delete(
                     $wpdb->prefix . 'pmxi_posts',
                     array('import_id' => $import_id),
                     array('%d')
                 );
-
-                $message .= "Deleted {$deleted} entries from pmxi_posts table.\n";
-                $message .= "Cache cleared. Counts should now be correct.\n";
-
                 delete_transient('oliit_counts_' . $import_id);
-                $total_fixed++;
-            } else {
-                $message .= "\nData looks consistent. No action needed.";
+                $fixed         = true;
+                $total_in_pmxi = 0;
             }
+
+            $rows[] = array(
+                'id'      => $import_id,
+                'summary' => $latest_summary ? (string) $latest_summary : '',
+                'count'   => (int) $total_in_pmxi,
+                'status'  => $fixed ? 'fixed' : 'ok',
+            );
         }
 
-        if ($total_fixed > 0) {
-            $message .= "\n\nTotal inconsistencies fixed: {$total_fixed}";
-        }
-
-        wp_send_json_success($message);
+        wp_send_json_success(array('rows' => $rows));
     }
 
     /**
@@ -967,11 +787,11 @@ class OLIIT_Settings {
         check_ajax_referer('oliit_reset_notifications');
 
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(__('Insufficient permissions.', 'wp-all-import-tracker'));
+            wp_send_json_error(__('Insufficient permissions.', 'oli-import-tracker'));
         }
 
         delete_option('oliit_dismissed_notifications');
 
-        wp_send_json_success(__('All dismissed notifications have been reset. You will see import error notifications again.', 'wp-all-import-tracker'));
+        wp_send_json_success(__('Dismissed notices will show again.', 'oli-import-tracker'));
     }
 }

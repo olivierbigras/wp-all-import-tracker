@@ -26,12 +26,6 @@ function oliit_table_exists($table_name) {
 }
 
 /**
- * Write a debug log line when WP_DEBUG is enabled.
- *
- * @param string $message Message without the plugin prefix.
- * @return void
- */
-/**
  * Sanitize a list of positive integer IDs from request data.
  *
  * @param mixed $ids Raw ID list.
@@ -166,4 +160,179 @@ function oliit_migrate_legacy_options() {
 
     update_option('oliit_options_migrated', '1');
     oliit_log('Migrated legacy wpait_* options to oliit_*.');
+}
+
+/**
+ * Whether WP All Import tables are present.
+ *
+ * @return bool
+ */
+function oliit_wpai_is_available() {
+    global $wpdb;
+
+    return oliit_table_exists($wpdb->prefix . 'pmxi_imports');
+}
+
+/**
+ * Get WP All Import jobs with last-run info.
+ *
+ * @return array<int,array{id:int,name:string,last_run:string,last_run_label:string,scheduled:bool}>
+ */
+function oliit_get_available_imports() {
+    global $wpdb;
+
+    if (!oliit_wpai_is_available()) {
+        return array();
+    }
+
+    $table = $wpdb->prefix . 'pmxi_imports';
+    // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name is prefix + a fixed identifier.
+    $columns = $wpdb->get_col("DESCRIBE {$table}");
+    $select  = array('id', 'name', 'path');
+
+    if (is_array($columns)) {
+        foreach (array('last_activity', 'options', 'triggered') as $column) {
+            if (in_array($column, $columns, true)) {
+                $select[] = $column;
+            }
+        }
+    }
+
+    $sql = 'SELECT ' . implode(', ', $select) . " FROM {$table} ORDER BY id DESC";
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- column list is hard-coded identifiers.
+    $rows = $wpdb->get_results($sql);
+    // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+    $imports = array();
+
+    if (!$rows) {
+        return $imports;
+    }
+
+    foreach ($rows as $row) {
+        $name = '';
+        if (!empty($row->name)) {
+            $name = $row->name;
+        } elseif (!empty($row->path)) {
+            $name = basename($row->path);
+        } else {
+            $name = sprintf(
+                /* translators: %d: import ID */
+                __('Import #%d', 'oli-import-tracker'),
+                (int) $row->id
+            );
+        }
+
+        $last_run = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT MAX(date) FROM {$wpdb->prefix}pmxi_history WHERE import_id = %d",
+                $row->id
+            )
+        );
+
+        $imports[] = array(
+            'id'             => (int) $row->id,
+            'name'           => $name,
+            'last_run'       => $last_run ? (string) $last_run : '',
+            'last_run_label' => oliit_human_last_run($last_run),
+            'scheduled'      => oliit_import_is_scheduled($row),
+        );
+    }
+
+    return $imports;
+}
+
+/**
+ * Human-readable last-run label.
+ *
+ * @param string|null $last_run MySQL datetime.
+ * @return string
+ */
+function oliit_human_last_run($last_run) {
+    if (empty($last_run)) {
+        return __('never run', 'oli-import-tracker');
+    }
+
+    $timestamp = strtotime($last_run);
+    if (!$timestamp) {
+        return __('never run', 'oli-import-tracker');
+    }
+
+    return sprintf(
+        /* translators: %s: human time difference */
+        __('%s ago', 'oli-import-tracker'),
+        human_time_diff($timestamp, (int) current_time('timestamp'))
+    );
+}
+
+/**
+ * Whether an import looks scheduled via cron.
+ *
+ * @param object $row Import row.
+ * @return bool
+ */
+function oliit_import_is_scheduled($row) {
+    if (!empty($row->triggered)) {
+        return true;
+    }
+
+    if (!empty($row->options)) {
+        $options = maybe_unserialize($row->options);
+        if (is_array($options)) {
+            foreach (array('scheduling_enable', 'enable_scheduling', 'cron', 'is_scheduled') as $key) {
+                if (!empty($options[$key])) {
+                    return true;
+                }
+            }
+        } elseif (is_string($row->options) && false !== stripos($row->options, 'schedul')) {
+            return true;
+        }
+    }
+
+    return (bool) get_option('wp_all_import_cron_job_key_' . (int) $row->id);
+}
+
+/**
+ * IDs of scheduled WP All Import jobs.
+ *
+ * @return int[]
+ */
+function oliit_get_scheduled_import_ids() {
+    $ids = array();
+    foreach (oliit_get_available_imports() as $import) {
+        if (!empty($import['scheduled'])) {
+            $ids[] = (int) $import['id'];
+        }
+    }
+
+    return $ids;
+}
+
+/**
+ * Correct a leftover default of import ID 1 when that import does not exist.
+ *
+ * @return void
+ */
+function oliit_maybe_reset_default_import_one() {
+    if (get_option('oliit_ux_defaults_migrated')) {
+        return;
+    }
+
+    $ids = get_option('oliit_import_ids', null);
+    if (null !== $ids && false !== $ids) {
+        $ids = array_map('intval', (array) $ids);
+        if (array(1) === $ids && oliit_wpai_is_available()) {
+            global $wpdb;
+            $exists = $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT id FROM {$wpdb->prefix}pmxi_imports WHERE id = %d",
+                    1
+                )
+            );
+            if (!$exists) {
+                update_option('oliit_import_ids', oliit_get_scheduled_import_ids());
+            }
+        }
+    }
+
+    update_option('oliit_ux_defaults_migrated', '1');
 }

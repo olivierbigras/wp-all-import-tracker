@@ -11,10 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Option migration from the legacy `wpait_*` keys to `oliit_*` on update (copy, then delete)
 - Enqueued CSS/JS assets for the settings page, product list, and admin notices
 - External services documentation in `readme.txt`
+- Settings tabs: Tracked imports + Email alerts, and a Tools tab for cache/diagnose/notices
 
 ### Changed
 - Plugin display name is now **Oli Import Tracker for WP All Import**
+- Slug, text domain, and main file are `oli-import-tracker`
 - Prefix for functions, classes, options, transients, hooks, and script handles is `oliit_` / `OLIIT_`
+- Default tracked imports are scheduled jobs (or none), not import ID 1
+- Email alerts are never enabled automatically
 - Stable tag now matches the plugin version
 - Tested up to WordPress 7.1 and WooCommerce 11.2
 - Settings and AJAX actions use `wp_localize_script` instead of inline scripts
@@ -24,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Stable tag was still 1.0.0 while the plugin version was 1.1.0
 - GitHub support link pointed at a placeholder username
 - Missing `wpait_import_ids` cleanup on uninstall (now covered for both prefixes)
+- Setup notice claimed alerts would turn themselves on
 
 ## [1.1.0] - 2024-01-XX
 

@@ -79,7 +79,7 @@ class OLIIT_Admin {
             esc_url($updated_url),
             esc_attr($updated_class),
             $updated_aria,
-            esc_html__('Updated', 'wp-all-import-tracker'),
+            esc_html__('Updated', 'oli-import-tracker'),
             esc_html(number_format_i18n($total_counts['updated']))
         );
 
@@ -92,7 +92,7 @@ class OLIIT_Admin {
             esc_url($skipped_url),
             esc_attr($skipped_class),
             $skipped_aria,
-            esc_html__('Skipped', 'wp-all-import-tracker'),
+            esc_html__('Skipped', 'oli-import-tracker'),
             esc_html(number_format_i18n($total_counts['skipped']))
         );
 
@@ -187,7 +187,7 @@ class OLIIT_Admin {
         $settings_link = sprintf(
             '<a href="%s">%s</a>',
             esc_url(admin_url('options-general.php?page=oliit-settings')),
-            esc_html__('Settings', 'wp-all-import-tracker')
+            esc_html__('Settings', 'oli-import-tracker')
         );
         array_unshift($links, $settings_link);
         return $links;

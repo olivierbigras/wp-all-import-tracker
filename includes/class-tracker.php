@@ -71,7 +71,7 @@ class OLIIT_Tracker {
         $new_columns = array();
         foreach ($columns as $key => $value) {
             if ('date' === $key) {
-                $new_columns['import'] = esc_html__('Import', 'wp-all-import-tracker');
+                $new_columns['import'] = esc_html__('Import', 'oli-import-tracker');
             }
             $new_columns[$key] = $value;
         }
@@ -106,13 +106,13 @@ class OLIIT_Tracker {
                 echo '<br><small class="oliit-import-id-note">' . esc_html(
                     sprintf(
                         /* translators: %d: import ID */
-                        __('Import #%d', 'wp-all-import-tracker'),
+                        __('Import #%d', 'oli-import-tracker'),
                         absint($last_import_info['import_id'])
                     )
                 ) . '</small>';
             }
         } else {
-            echo '<span>' . esc_html__('Never imported', 'wp-all-import-tracker') . '</span>';
+            echo '<span>' . esc_html__('Never imported', 'oli-import-tracker') . '</span>';
         }
         echo '</div>';
         echo '</div>';
@@ -188,7 +188,7 @@ class OLIIT_Tracker {
             $product_title    = get_the_title($post_id);
             $was_updated      = !in_array($product_title, $skipped_products, true);
             $post_modified    = get_post_modified_time('M j, Y g:i A', false, $post_id);
-            $status_text      = $was_updated ? __('Updated', 'wp-all-import-tracker') : __('Skipped', 'wp-all-import-tracker');
+            $status_text      = $was_updated ? __('Updated', 'oli-import-tracker') : __('Skipped', 'oli-import-tracker');
 
             return array(
                 'date'      => $post_modified . ' (' . $status_text . ')',
@@ -289,6 +289,9 @@ class OLIIT_Tracker {
 
         $import_filter = sanitize_text_field(wp_unslash($_GET['import_filter']));
         $import_id     = oliit()->get_import_id();
+        if ($import_id <= 0) {
+            return $join;
+        }
 
         if ('updated' === $import_filter) {
             $join .= $wpdb->prepare(

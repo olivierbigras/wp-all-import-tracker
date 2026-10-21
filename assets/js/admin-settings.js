@@ -14,68 +14,60 @@
 		$target.empty().append($notice);
 	}
 
-	function showTextResult($target, ok, message) {
-		$target
-			.removeClass('oliit-success oliit-warning')
-			.addClass(ok ? 'oliit-success' : 'oliit-warning')
-			.text(message);
+	function toggleAlertFields() {
+		var enabled = $('#oliit_enable_email_alerts').is(':checked');
+		$('#oliit-alert-email-wrap, #oliit-alert-advanced-wrap').prop('hidden', !enabled);
 	}
 
-	function importIdRow(value) {
-		var $row = $('<div/>', { class: 'oliit-import-id-row' });
-		$row.append(
+	function importIdRow(id) {
+		var $label = $('<label/>', { class: 'oliit-import-choice' });
+		$label.append(
 			$('<input/>', {
-				type: 'number',
+				type: 'checkbox',
 				name: 'oliit_import_ids[]',
-				value: value || '',
-				min: 1,
-				class: 'regular-text oliit-import-id-input'
+				value: id,
+				checked: true
 			})
 		);
-		$row.append(
-			$('<button/>', {
-				type: 'button',
-				class: 'button oliit-remove-import-id',
-				text: i18n.remove || ''
-			})
+		$label.append(
+			document.createTextNode(
+				' #' + id + ' — ' + (i18n.addId || '') + ' (' + (i18n.neverRun || '') + ')'
+			)
 		);
-		return $row;
+		return $label;
 	}
 
-	$('#oliit_add_import_id').on('click', function () {
-		$('#oliit_import_ids_container').append(importIdRow(''));
+	toggleAlertFields();
+	$('#oliit_enable_email_alerts').on('change', toggleAlertFields);
+
+	$('#oliit-import-filter').on('input', function () {
+		var query = $(this).val().toLowerCase();
+		$('#oliit-import-list .oliit-import-choice').each(function () {
+			var text = $(this).text().toLowerCase();
+			$(this).toggleClass('is-filtered-out', query !== '' && text.indexOf(query) === -1);
+		});
 	});
 
-	$(document).on('click', '.oliit-remove-import-id', function () {
-		if ($('.oliit-import-id-row').length > 1) {
-			$(this).closest('.oliit-import-id-row').remove();
+	$('#oliit-add-manual-id').on('click', function () {
+		var id = parseInt($('#oliit-manual-import-id').val(), 10);
+		if (!id) {
+			return;
 		}
+		if ($('#oliit-import-list input[value="' + id + '"]').length) {
+			$('#oliit-import-list input[value="' + id + '"]').prop('checked', true);
+			return;
+		}
+		$('#oliit-import-list').append(importIdRow(id));
+		$('#oliit-manual-import-id').val('');
 	});
 
-	$('#oliit_detect_imports').on('click', function () {
-		var $list = $('#oliit_available_imports');
-		var $button = $(this);
-		$list.toggleClass('is-visible');
-		$button.text(
-			$list.hasClass('is-visible')
-				? i18n.hideImports
-				: i18n.detectImports
-		);
-	});
-
-	$(document).on('click', '.oliit-add-import', function () {
-		var importId = $(this).data('import-id');
-		$('#oliit_import_ids_container').append(importIdRow(importId));
-		$(this)
-			.closest('tr')
-			.find('td:last')
-			.empty()
-			.append(
-				$('<span/>', {
-					class: 'oliit-tracked',
-					text: i18n.tracked || ''
-				})
-			);
+	$('#oliit-settings-form').on('submit', function (event) {
+		var stale = parseInt($('#oliit_stale_threshold').val(), 10) || 0;
+		var maximum = parseInt($('#oliit_max_execution_time').val(), 10) || 0;
+		if ($('#oliit_enable_email_alerts').is(':checked') && maximum < stale) {
+			event.preventDefault();
+			window.alert(i18n.thresholdError || '');
+		}
 	});
 
 	$('#oliit_test_email').on('click', function () {
@@ -83,6 +75,13 @@
 		var originalText = $button.text();
 		var email = $('#oliit_alert_email').val() || settings.adminEmail || '';
 		var $result = $('#oliit_test_email_result');
+		var $error = $('#oliit_alert_email_error');
+
+		if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+			$error.text(i18n.invalidEmail || '').prop('hidden', false);
+			return;
+		}
+		$error.prop('hidden', true).text('');
 
 		$button.prop('disabled', true).text(i18n.sending);
 		$result.empty();
@@ -134,11 +133,6 @@
 					response.success ? 'success' : 'error',
 					response.data || ''
 				);
-				if (response.success) {
-					window.setTimeout(function () {
-						window.location.reload();
-					}, 2000);
-				}
 			})
 			.fail(function () {
 				showNotice($result, 'error', i18n.refreshError || '');
@@ -166,25 +160,50 @@
 			}
 		})
 			.done(function (response) {
-				showNotice(
-					$result,
-					response.success ? 'success' : 'error',
-					response.data || ''
+				if (!response.success) {
+					showNotice($result, 'error', response.data || '');
+					return;
+				}
+				var rows = (response.data && response.data.rows) || [];
+				var $table = $('<table/>', {
+					class: 'widefat oliit-diagnose-table'
+				});
+				var $thead = $('<thead/>').append(
+					$('<tr/>')
+						.append($('<th/>').text(i18n.colImport || ''))
+						.append($('<th/>').text(i18n.colSummary || ''))
+						.append($('<th/>').text(i18n.colCount || ''))
+						.append($('<th/>').text(i18n.colStatus || ''))
 				);
+				var $tbody = $('<tbody/>');
+				rows.forEach(function (row) {
+					var ok = row.status === 'ok';
+					$tbody.append(
+						$('<tr/>')
+							.append($('<td/>').text('#' + row.id))
+							.append($('<td/>').text(row.summary || ''))
+							.append($('<td/>').text(String(row.count)))
+							.append(
+								$('<td/>', {
+									class: ok ? 'oliit-status-ok' : 'oliit-status-bad'
+								}).text(ok ? i18n.statusOk : i18n.statusBad)
+							)
+					);
+				});
+				$table.append($thead).append($tbody);
+				$result.empty().append($table);
 			})
 			.fail(function () {
 				showNotice($result, 'error', i18n.debugError || '');
 			})
 			.always(function () {
 				$button.prop('disabled', false).text(originalText);
-				window.setTimeout(function () {
-					window.location.reload();
-				}, 3000);
 			});
 	});
 
 	$('#oliit-reset-notifications').on('click', function () {
 		var $button = $(this);
+		var originalText = $button.text();
 		var $result = $('#oliit-reset-notifications-result');
 
 		$button.prop('disabled', true).text(i18n.resetting);
@@ -199,18 +218,17 @@
 			}
 		})
 			.done(function (response) {
-				showTextResult(
+				showNotice(
 					$result,
-					!!response.success,
+					response.success ? 'success' : 'error',
 					response.data || ''
 				);
-				$button.text(i18n.resetLabel);
 			})
 			.fail(function () {
-				showTextResult($result, false, i18n.resetError || '');
+				showNotice($result, 'error', i18n.resetError || '');
 			})
 			.always(function () {
-				$button.prop('disabled', false);
+				$button.prop('disabled', false).text(originalText);
 			});
 	});
 })(jQuery);
