@@ -1,9 +1,9 @@
-# WP All Import Tracker
-# Copyright (C) 2025 Olivier Bigras
+# Oli Import Tracker for WP All Import
+# Copyright (C) 2026 Olivier Bigras
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: WP All Import Tracker 1.0.0\n"
+"Project-Id-Version: Oli Import Tracker for WP All Import 1.2.0\n"
 "Report-Msgid-Bugs-To: https://olivierbigras.com\n"
 "POT-Creation-Date: 2025-01-01 00:00:00+00:00\n"
 "MIME-Version: 1.0\n"

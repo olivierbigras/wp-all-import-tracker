@@ -29,6 +29,9 @@ debug.log
 node_modules/
 npm-debug.log*
 
+# Composer (dev tooling only)
+vendor/
+
 # Build files
 dist/
 build/

@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<ruleset name="Oli Import Tracker">
+	<description>Plugin Check oriented WordPress rules for Oli Import Tracker for WP All Import.</description>
+	<file>.</file>
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<arg name="extensions" value="php"/>
+	<arg name="colors"/>
+	<config name="minimum_supported_wp_version" value="5.0"/>
+
+	<rule ref="WordPress.Security"/>
+	<rule ref="WordPress.DB"/>
+	<rule ref="WordPress.PHP.DevelopmentFunctions"/>
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="wp-all-import-tracker"/>
+			</property>
+		</properties>
+	</rule>
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="oliit"/>
+				<element value="OLIIT"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>

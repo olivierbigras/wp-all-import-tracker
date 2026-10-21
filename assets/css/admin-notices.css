@@ -1,0 +1,32 @@
+.oliit-notice-layout {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+}
+
+.oliit-notice-body {
+	flex: 1;
+}
+
+.oliit-notice-issues {
+	max-height: 150px;
+	overflow-y: auto;
+	margin: 10px 0;
+}
+
+.oliit-notice-issue {
+	margin: 5px 0;
+}
+
+.oliit-notice-ok {
+	color: #46b450;
+}
+
+.oliit-notice-dismiss-wrap {
+	margin-left: 15px;
+}
+
+.oliit-notice-dismiss {
+	color: #666;
+	text-decoration: none;
+}
