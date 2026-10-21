@@ -1,29 +1,35 @@
 # Changelog
 
-All notable changes to WP All Import Tracker will be documented in this file.
+All notable changes to Oli Import Tracker for WP All Import will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.2.0] - 2026-10-21
 
 ### Added
-- Support for tracking multiple import configurations simultaneously
-- Enhanced email alert system with configurable thresholds
-- Automatic inconsistency detection and repair
-- Improved debug tools for troubleshooting import issues
+- Option migration from the legacy `wpait_*` keys to `oliit_*` on update (copy, then delete)
+- Enqueued CSS/JS assets for the settings page, product list, and admin notices
+- External services documentation in `readme.txt`
+- Settings tabs: Tracked imports + Email alerts, and a Tools tab for cache/diagnose/notices
+- `.distignore` and `.gitattributes` `export-ignore` so the distributable ZIP excludes development files
 
 ### Changed
-- Updated settings interface to support multiple import IDs
-- Enhanced "Currently Tracking" section to show all configured imports
-- Improved cache management for better performance
-- Better error handling and user feedback
+- Plugin display name is now **Oli Import Tracker for WP All Import**
+- Slug, text domain, and main file are `oli-import-tracker`
+- Prefix for functions, classes, options, transients, hooks, and script handles is `oliit_` / `OLIIT_`
+- Default tracked imports are scheduled jobs (or none), not import ID 1
+- Email alerts are never enabled automatically
+- Stable tag now matches the plugin version
+- Tested up to WordPress 7.1 and WooCommerce 11.2
+- Settings and AJAX actions use `wp_localize_script` instead of inline scripts
+- Cancel-import email links require a logged-in user with `manage_options`
 
 ### Fixed
-- Fixed "Import ID 1 not found" warning when using multiple imports
-- Resolved cache invalidation issues
-- Fixed product count inconsistencies
-- Improved import status detection accuracy
+- Stable tag was still 1.0.0 while the plugin version was 1.1.0
+- GitHub support link pointed at a placeholder username
+- Missing `wpait_import_ids` cleanup on uninstall (now covered for both prefixes)
+- Setup notice claimed alerts would turn themselves on
 
 ## [1.1.0] - 2024-01-XX
 
@@ -62,10 +68,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Import timestamp display
 - Settings page for configuration
 - Automatic cache refresh on import completion
-
-### Features
-- Tracks which products were updated or skipped during imports
-- Shows precise timestamps for updated products
-- Filters products by import status
-- Displays import information in product list
-- Automatic cache management

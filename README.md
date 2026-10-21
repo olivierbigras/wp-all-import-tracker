@@ -1,4 +1,4 @@
-# WP All Import Tracker
+# Oli Import Tracker for WP All Import
 
 A WordPress plugin that helps you monitor which WooCommerce products were updated or skipped during WP All Import runs. Shows precise timestamps and supports monitoring multiple imports simultaneously.
 
@@ -22,7 +22,7 @@ A WordPress plugin that helps you monitor which WooCommerce products were update
 ## Installation
 
 1. Download the plugin files
-2. Upload the `wp-all-import-tracker` folder to your `/wp-content/plugins/` directory
+2. Upload the `oli-import-tracker` folder to your `/wp-content/plugins/` directory
 3. Activate the plugin through the 'Plugins' menu in WordPress
 4. Go to Settings > Import Tracker to configure your import IDs
 
@@ -45,6 +45,7 @@ A WordPress plugin that helps you monitor which WooCommerce products were update
 ### Email Alerts (Optional)
 
 Enable email alerts to receive notifications when:
+
 - Imports become stale (no activity for X minutes)
 - Imports run too long (exceed maximum execution time)
 - Import failures are detected
@@ -61,6 +62,7 @@ The plugin tracks products in two categories:
 ### Import Column
 
 The "Import" column in your product list shows:
+
 - Last modification date for updated products
 - Import status (Updated/Skipped)
 - Import ID (when tracking multiple imports)
@@ -74,6 +76,7 @@ Use the "Updated" and "Skipped" links in the product list to filter products by 
 ### Import ID Not Found
 
 If you see "Import ID X not found!", make sure:
+
 1. The import ID exists in WP All Import
 2. WP All Import is installed and activated
 3. The import has been run at least once
@@ -81,36 +84,18 @@ If you see "Import ID X not found!", make sure:
 ### Inconsistent Data
 
 If the counts don't match your expectations:
+
 1. Click "Check Import Data Consistency" in settings
 2. The plugin will automatically fix common inconsistencies
 3. Use "Refresh Import Cache Now" to update counts
 
-### Debug Information
-
-The plugin logs detailed information to help with troubleshooting:
-- Cache operations
-- Import status changes
-- Data consistency checks
-- Error conditions
-
 ## Changelog
 
-### Version 1.1.0
-- Added support for multiple import tracking
-- Improved email alert system
-- Enhanced debug tools
-- Better error handling and user feedback
-- Automatic inconsistency detection and repair
-
-### Version 1.0.0
-- Initial release
-- Single import tracking
-- Basic product filtering
-- Import column display
+See [CHANGELOG.md](CHANGELOG.md) and the changelog in `readme.txt`.
 
 ## Support
 
-For support, feature requests, or bug reports, please visit the [GitHub Issues](https://github.com/yourusername/wp-all-import-tracker/issues) page.
+For support, feature requests, or bug reports, please visit the [GitHub Issues](https://github.com/olivierbigras/wp-all-import-tracker/issues) page.
 
 ## License
 
@@ -122,4 +107,4 @@ Developed by [Olivier Bigras](https://olivierbigras.com)
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome. Please feel free to submit a Pull Request.

@@ -1,0 +1,25 @@
+.column-import {
+	width: 100px;
+	text-align: center;
+}
+
+.import-column-content {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.last-import-date {
+	text-align: center;
+	line-height: 1.2;
+}
+
+.last-import-date span {
+	color: #666;
+	font-size: 11px;
+	display: block;
+}
+
+.oliit-import-id-note {
+	color: #666;
+}

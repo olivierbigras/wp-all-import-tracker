@@ -1,0 +1,49 @@
+.oliit-import-fieldset {
+	border: 0;
+	margin: 0;
+	padding: 0;
+}
+
+.oliit-import-choice {
+	display: block;
+	margin: 0 0 8px;
+}
+
+.oliit-import-choice.is-filtered-out {
+	display: none;
+}
+
+.oliit-advanced {
+	margin-top: 12px;
+}
+
+.oliit-ajax-result {
+	margin: 8px 0 16px;
+}
+
+.oliit-field-error {
+	color: #d63638;
+	margin: 6px 0 0;
+}
+
+.oliit-tools {
+	max-width: 720px;
+	margin-top: 16px;
+}
+
+.oliit-diagnose-table {
+	margin-top: 12px;
+	max-width: 800px;
+}
+
+.oliit-status-ok {
+	color: #1e8e3e;
+}
+
+.oliit-status-bad {
+	color: #d63638;
+}
+
+.oliit-test-email {
+	margin-left: 8px;
+}
