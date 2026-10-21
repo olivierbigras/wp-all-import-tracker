@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enqueued CSS/JS assets for the settings page, product list, and admin notices
 - External services documentation in `readme.txt`
 - Settings tabs: Tracked imports + Email alerts, and a Tools tab for cache/diagnose/notices
+- `.distignore` and `.gitattributes` `export-ignore` so the distributable ZIP excludes development files
 
 ### Changed
 - Plugin display name is now **Oli Import Tracker for WP All Import**

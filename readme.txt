@@ -158,6 +158,7 @@ This plugin is specifically designed for WP All Import and may not work with oth
 * Moved all inline JavaScript and CSS into enqueued asset files
 * Aligned Stable tag, Tested up to, and plugin version
 * Hardened admin AJAX, cancel-import links, and output escaping
+* Exclude development files from the distributable ZIP (.distignore and .gitattributes)
 
 = 1.1.0 =
 * Support for tracking multiple import configurations

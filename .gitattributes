@@ -1,0 +1,20 @@
+# Exclude development-only paths from `git archive` / distributable ZIPs.
+
+/.github            export-ignore
+/bin                export-ignore
+/scripts            export-ignore
+/tests              export-ignore
+/node_modules       export-ignore
+
+/.gitignore         export-ignore
+/.gitattributes     export-ignore
+/.distignore        export-ignore
+
+/composer.json      export-ignore
+/composer.lock      export-ignore
+package*.json       export-ignore
+phpcs.xml*          export-ignore
+phpunit.xml*        export-ignore
+
+# Internal markdown (keep readme.txt).
+*.md                export-ignore

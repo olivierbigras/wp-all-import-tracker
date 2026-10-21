@@ -1,0 +1,21 @@
+# Development-only paths excluded from the distributable plugin ZIP.
+# Used by wordpress.org deploy scripts and wp-cli dist-archive.
+
+/.github
+/bin
+/scripts
+/tests
+/node_modules
+
+.gitignore
+.gitattributes
+.distignore
+
+composer.json
+composer.lock
+package*.json
+phpcs.xml*
+phpunit.xml*
+
+# Internal markdown (keep readme.txt).
+*.md
